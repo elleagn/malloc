@@ -1,6 +1,6 @@
 .vscode
 objects
 a.out
-malloc
 .clang-format
 *.o
+*.so
