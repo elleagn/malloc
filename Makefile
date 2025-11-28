@@ -5,7 +5,7 @@ endif
 
 NAME = libft_malloc_$(HOSTTYPE).so
 CC = clang
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g -MMD -MP
 LIBFT = libft/libft.a
 MLX = minilibx-linux/libmlx_Linux.a
 SRC_DIR = srcs
@@ -46,3 +46,5 @@ fclean:
 re: fclean all
 
 .PHONY: all clean fclean re
+
+-include $(DEPS)
