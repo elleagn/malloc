@@ -11,9 +11,13 @@ Reimplement 3 allocation functions using mmap and munmap:
 ## Build and test
 
 - Build the library:
-``` make ```
+```bash
+make
+```
 
 - Build and run the test program:
-``` make test
+```bash
+make test
 export LD_LIBRARY_PATH=$(pwd)
-./test```
+./test
+```
