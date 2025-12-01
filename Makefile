@@ -21,14 +21,14 @@ CHECK_MARK = ✔
 all: $(LINK)
 
 $(LINK): $(NAME)
-	ln -s $(NAME) $(LINK)
+	ln -sf $(NAME) $(LINK)
 
 $(NAME): $(OBJ) $(LIBFT)
-	@$(CC) $(OBJ) -shared -Llibft -lft -o $(NAME)
+	@$(CC) $(OBJ) -shared -o $(NAME)
 	@echo "$(NAME) a été créé avec succès ($(CHECK_MARK))"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	@$(CC) $(CFLAGS) -Ilibft -Isrcs -c $< -fPIC -o $@
+	@$(CC) $(CFLAGS) -Ilibft -Iincludes -c $< -fPIC -o $@
 
 $(LIBFT):
 	@make -C libft --silent --no-print-directory
@@ -53,7 +53,7 @@ re: fclean all
 
 test: all
 	export LD_LIBRARY_PATH=$(PWD)
-	$(CC) $(CFLAGS) main.c -L$(PWD) -lft_malloc -o test
+	$(CC) $(CFLAGS) main.c -L$(PWD) -lft_malloc -Llibft -lft -o test
 
 
 .PHONY: all clean fclean re
