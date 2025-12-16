@@ -11,6 +11,6 @@ void *malloc(size_t size) {
     }
 
     t_chunk *chunk = find_fitting_chunk(size);
-    void    *ptr = resize_chunk(size);
-    return (ptr);
+    chunk = resize_chunk(size);
+    return ;
 }

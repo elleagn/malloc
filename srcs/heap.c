@@ -14,9 +14,12 @@ t_heap *initialize_heap(void) {
     t_chunk *chunk = (t_chunk *)(heap + HEAP_HEADER_SIZE);
     heap->bin = chunk;
     chunk->prev_size = 0;
-    chunk->size = heap_size + 1 - HEAP_HEADER_SIZE;
+    chunk->size = heap_size - HEAP_HEADER_SIZE - 8 + PREV_INUSE;
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
+
+    size_t *end_tag = (size_t *)(chunk + chunk->size - PREV_INUSE);
+    *end_tag = chunk->size;
 
     return (heap);
 
