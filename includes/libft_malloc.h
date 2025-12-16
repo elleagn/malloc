@@ -13,14 +13,20 @@ typedef struct s_chunk
     size_t size;
 }   t_chunk;
 
+typedef struct s_heap
+{
+    size_t size;
+} t_heap;
+
+
 typedef struct s_arena {
-    t_chunk *heap;
+    t_heap *heap;
 }   t_arena;
 
 extern t_arena arena;
 
 
-t_chunk *initialize_heap(void);
+t_heap *initialize_heap(void);
 void    *malloc(size_t size);
 
 #endif
