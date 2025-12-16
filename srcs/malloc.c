@@ -1,11 +1,15 @@
 #include "libft.h"
+#include "libft_malloc.h"
 #include <sys/mman.h>
+
+t_arena arena = {NULL};
 
 void *malloc(size_t size) {
 
-    void *ptr = mmap(NULL, 15, PROT_READ | PROT_WRITE,
-                     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    (void)size;
-    ft_printf("my malloc\n");
+    if (!arena.heap)
+        arena.heap = initialize_heap();
+
+    t_chunk*chunk = find_fitting_chunk(size);
+    void *ptr = resize_chunk(size);
     return (ptr);
 }
