@@ -13,7 +13,7 @@ void *malloc(size_t size) {
     t_chunk *chunk = find_fitting_chunk(size);
     chunk = resize_chunk(chunk, size);
 
-    void *ptr = (void *)(chunk + 16);
+    void *ptr = (void *)((uintptr_t)chunk + 16);
     return ptr;
 
 }

@@ -35,4 +35,6 @@ void    remove_chunk(t_chunk *chunk, t_chunk **bin);
 t_heap *initialize_heap(void);
 void   *malloc(size_t size);
 
+void print_heap();
+
 #endif

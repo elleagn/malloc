@@ -20,7 +20,7 @@ t_chunk *resize_chunk(t_chunk *chunk, size_t size) {
 
     size_t usable_size = size;
     if (size % 8 != 0) {
-        usable_size = size / 8 + 1;
+        usable_size = size - size % 8 + 8;
     }
     size_t flags = chunk->size & 7;
     size_t old_size = chunk->size - flags;

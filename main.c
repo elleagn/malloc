@@ -2,10 +2,18 @@
 #include <stdio.h>
 
 void *malloc(size_t size);
+void print_heap();
 
 int main(void) {
-    char *ptr = malloc(15);
-    (void)ptr;
+    int *ptr = malloc(sizeof(int));
+    *ptr = 15;
+    printf("%i\n", *ptr);
+    int *ptr2 = malloc(sizeof(int));
+    *ptr2 = 19;
+    printf("%i\n", *ptr);
+    printf("%i\n", *ptr2);
+    print_heap();
+    // print_heap();
 //    strcpy(ptr, "123");
 //    printf("%s\n", ptr);
 }
