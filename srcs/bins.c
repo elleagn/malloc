@@ -6,7 +6,7 @@ void remove_chunk(t_chunk *chunk, t_chunk **bin) {
     t_chunk *prev = chunk->prev_free_chunk;
 
     if (*bin == chunk) {
-        bin = next;
+        *bin = next;
     }
 
     if (next != NULL) {

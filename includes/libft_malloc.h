@@ -27,7 +27,9 @@ typedef struct s_arena {
 
 extern t_arena arena;
 
-void    add_chunk(t_chunk *chunk, t_chunk *bin);
+t_chunk *find_fitting_chunk(size_t size);
+t_chunk *resize_chunk(t_chunk *chunk, size_t size);
+void    add_chunk(t_chunk *chunk, t_chunk **bin);
 void    remove_chunk(t_chunk *chunk, t_chunk **bin);
 
 t_heap *initialize_heap(void);
