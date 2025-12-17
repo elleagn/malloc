@@ -1,6 +1,6 @@
 #include "libft_malloc.h"
-#include "stdio.h"
 #include "stdint.h"
+#include "stdio.h"
 
 #define LINE_WIDTH 50
 
@@ -21,11 +21,13 @@ void print_heap_header() {
 
 void print_chunks() {
     uintptr_t ptr_value = (uintptr_t)arena.heap + 16;
-    t_chunk *chunk =  (t_chunk *)ptr_value;
-    t_chunk *next_chunk = (t_chunk *)(ptr_value + chunk->size);
+    t_chunk  *chunk = (t_chunk *)ptr_value;
+    t_chunk  *next_chunk =
+        (t_chunk *)(ptr_value + chunk->size - (chunk->size & 7));
 
     printf("CHUNKS\n\n");
-    while ((uintptr_t)next_chunk <= (uintptr_t)arena.heap + arena.heap->size - 8) {
+    while ((uintptr_t)next_chunk <
+           (uintptr_t)arena.heap + arena.heap->size - 8) {
         printf("Address: %p\n", chunk);
         printf("Size: %lu\n", chunk->size);
         if (next_chunk->size % 8 == 0) {
@@ -33,14 +35,13 @@ void print_chunks() {
         } else {
             printf("Used\n");
         }
-        ptr_value += chunk->size;
-        chunk =  (t_chunk *)ptr_value;
-        next_chunk = (t_chunk *)(ptr_value + chunk->size);
+        ptr_value += chunk->size - (chunk->size & 7);
+        chunk = (t_chunk *)ptr_value;
+        next_chunk = (t_chunk *)(ptr_value + chunk->size - (chunk->size & 7));
     }
     printf("Address: %p\n", chunk);
     printf("Size: %lu\n", chunk->size);
     printf("\n");
-
 }
 
 void print_heap() {
