@@ -90,7 +90,11 @@ extern t_arena arena;
 t_chunk *find_fitting_chunk(size_t size);
 
 /**
- * 
+ * @brief Resizes the chunk to the minimum possible size that can store an
+ * object of size size
+ * @param chunk the chunk to resize
+ * @param size the size of the data the new chunk must be able to fit
+ * @return  Returns chunk
  */
 t_chunk *resize_chunk(t_chunk *chunk, size_t size);
 void    add_chunk(t_chunk *chunk, t_chunk **bin);
