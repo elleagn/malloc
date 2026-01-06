@@ -1,7 +1,7 @@
 #include "libft_malloc.h"
 #include "stdint.h"
 
-t_chunk *find_fitting_chunk(size_t size) {
+t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
     t_chunk *current_chunk = arena.heap->bin;
     if (size < 16) {
@@ -10,7 +10,7 @@ t_chunk *find_fitting_chunk(size_t size) {
 
     while (current_chunk != NULL) {
         if (current_chunk->size - 8 >= size) {
-            remove_chunk(current_chunk, &arena.heap->bin);
+            remove_chunk(current_chunk, bin);
             return (current_chunk);
         }
         current_chunk = current_chunk->next_free_chunk;
@@ -19,7 +19,7 @@ t_chunk *find_fitting_chunk(size_t size) {
     return (NULL);
 }
 
-t_chunk *resize_chunk(t_chunk *chunk, size_t size) {
+t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 
     size_t usable_size = size >= 16 ? size : 16;
     if (size % 8 != 0) {
@@ -38,7 +38,7 @@ t_chunk *resize_chunk(t_chunk *chunk, size_t size) {
     remainder_chunk->size = remainder_size;
     size_t *end_tag = (size_t *)((uintptr_t)remainder_chunk + remainder_chunk->size - PREV_INUSE);
     *end_tag = remainder_chunk->size;
-    add_chunk(remainder_chunk, &arena.heap->bin);
+    add_chunk(remainder_chunk, bin);
 
     return (chunk);
 }

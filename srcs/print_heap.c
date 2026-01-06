@@ -20,7 +20,7 @@ void print_heap_header() {
 }
 
 void print_chunks() {
-    uintptr_t ptr_value = (uintptr_t)arena.heap + 16;
+    uintptr_t ptr_value = (uintptr_t)arena.heap + SEGMENT_HEADER_SIZE;
     t_chunk  *chunk = (t_chunk *)ptr_value;
     t_chunk  *next_chunk =
         (t_chunk *)(ptr_value + chunk->size - (chunk->size & 7));

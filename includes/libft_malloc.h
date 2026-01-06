@@ -7,7 +7,7 @@
 #define MAX_TINY_SIZE  64
 #define MAX_SMALL_SIZE 512
 
-#define HEAP_HEADER_SIZE 16
+#define SEGMENT_HEADER_SIZE 24
 
 /**
  * Reimplementation of a dynamic memory allocator.
@@ -77,21 +77,22 @@ typedef struct s_chunk {
 } t_chunk;
 
 /*
-    The heap header is stored right before the heap.
-    size is the size of the heap, header excluded.
+    The segment header is stored right before the heap.
+    size is the size of the segment, header excluded.
     bin points to a doubly linked list containing all of the free chunks.
     When memory is requested, the programs goes through the list until it finds
     a suitable candidate (ie bigger than the size requested)
 
 */
 
-typedef struct s_heap {
-    size_t size;
-    t_chunk *bin;
-} t_heap;
+typedef struct s_segment {
+    size_t              size;
+    t_chunk             *bin;
+    struct s_segment    *next;
+} t_segment;
 
 typedef struct s_arena {
-    t_heap *heap;
+    t_segment *heap;
 } t_arena;
 
 extern t_arena arena;
@@ -100,17 +101,19 @@ extern t_arena arena;
  * @brief Goes through the heap's bin until it finds a chunk with a usable space
  * >= size.
  * @param size the size fo the memory being requested
+ * @param bin the bin to go through
  */
-t_chunk *find_fitting_chunk(size_t size);
+t_chunk *find_fitting_chunk(size_t size, t_chunk **bin);
 
 /**
  * @brief Resizes the chunk to the minimum possible size that can store an
  * object of size size. The remainder chunk is added to the bin.
  * @param chunk the chunk to resize
  * @param size the size of the data the new chunk must be able to fit
+ * @param bin the bin where to put the remainder chunk
  * @return  Returns chunk
  */
-t_chunk *resize_chunk(t_chunk *chunk, size_t size);
+t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
 
 /**
  * @brief Add chunk to the bin.
@@ -126,7 +129,11 @@ void    add_chunk(t_chunk *chunk, t_chunk **bin);
  */
 void    remove_chunk(t_chunk *chunk, t_chunk **bin);
 
-t_heap *initialize_heap(void);
+/**
+ * @brief Request memory for the segment with mmap + fills the header
+ * @return The segement, ready to be used
+ */
+t_segment *initialize_segment(void);
 void   *malloc(size_t size);
 
 void print_heap();

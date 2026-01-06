@@ -10,8 +10,8 @@ int main(void) {
     printf("%i\n", *ptr);
     int *ptr2 = malloc(sizeof(int));
     *ptr2 = 19;
-    printf("%i\n", *ptr);
-    printf("%i\n", *ptr2);
+    printf("%i %p\n", *ptr, ptr);
+    printf("%i %p\n", *ptr2, ptr2);
     print_heap();
     // print_heap();
 //    strcpy(ptr, "123");
