@@ -76,6 +76,15 @@ typedef struct s_chunk {
     struct s_chunk *prev_free_chunk;
 } t_chunk;
 
+/*
+    The heap header is stored right before the heap.
+    size is the size of the heap, header excluded.
+    bin points to a doubly linked list containing all of the free chunks.
+    When memory is requested, the programs goes through the list until it finds
+    a suitable candidate (ie bigger than the size requested)
+
+*/
+
 typedef struct s_heap {
     size_t size;
     t_chunk *bin;
@@ -87,17 +96,34 @@ typedef struct s_arena {
 
 extern t_arena arena;
 
+/**
+ * @brief Goes through the heap's bin until it finds a chunk with a usable space
+ * >= size.
+ * @param size the size fo the memory being requested
+ */
 t_chunk *find_fitting_chunk(size_t size);
 
 /**
  * @brief Resizes the chunk to the minimum possible size that can store an
- * object of size size
+ * object of size size. The remainder chunk is added to the bin.
  * @param chunk the chunk to resize
  * @param size the size of the data the new chunk must be able to fit
  * @return  Returns chunk
  */
 t_chunk *resize_chunk(t_chunk *chunk, size_t size);
+
+/**
+ * @brief Add chunk to the bin.
+ * @param chunk the chunk to be added
+ * @param bin the bin (doubly linked list of chunks) to add the chunk to
+ */
 void    add_chunk(t_chunk *chunk, t_chunk **bin);
+
+/**
+ * @brief Remove chunk from the bin.
+ * @param chunk the chunk to be removed
+ * @param bin the bin (doubly linked list of chunks) to remove the chunk from
+ */
 void    remove_chunk(t_chunk *chunk, t_chunk **bin);
 
 t_heap *initialize_heap(void);
