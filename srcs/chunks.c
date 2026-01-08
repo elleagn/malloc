@@ -1,6 +1,30 @@
 #include "libft_malloc.h"
 #include "stdint.h"
 
+/**
+ * The strcture of a free chunk being as follow :
+ *  chunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *	    |             Size of previous chunk, if unallocated (P clear)  |
+ *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      |             Size of chunk, in bytes                     |0|0|P|
+ *     ptr-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *	    |             Forward pointer to next chunk in list             |
+ *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *	    |             Back pointer to previous chunk in list            |
+ *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *	    |             Unused space (may be 0 bytes long)                .
+ *	    .                                                               .
+ *	    .                                                               |
+ *  nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      |             Size of chunk, in bytes                           |
+ *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *	    |             Size of next chunk, in bytes                |0|0|0|
+ *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ * The minimum usable size is 16 because we must reserve space for the pointers
+ * to the next and previous chunk if the chunk is freed + we overwrite the size
+ * of chunk of the next byte.
+ */
 t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
     t_chunk *current_chunk = arena.heap->bin;
@@ -8,8 +32,10 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
         size = 16;
     }
 
+    // Looking for a chunk that can contain size (usable_size = chunk->size
+    // - size of header + previous_size of next_chunk >= size)
     while (current_chunk != NULL) {
-        if (current_chunk->size - 8 >= size) {
+        if (size + 8 <= current_chunk->size) {
             remove_chunk(current_chunk, bin);
             return (current_chunk);
         }
@@ -22,7 +48,7 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 
     size_t usable_size = size >= 16 ? size : 16;
-    if (size % 8 != 0) {
+    if (usable_size % 8 != 0) {
         usable_size = size - size % 8 + 8;
     }
     size_t flags = chunk->size & 7;
