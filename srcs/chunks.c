@@ -25,9 +25,10 @@
  * to the next and previous chunk if the chunk is freed + we overwrite the size
  * of chunk of the next byte.
  */
-t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
+t_chunk *find_fitting_chunk(size_t size, t_segment *heap) {
 
-    t_chunk *current_chunk = arena.heap->bin;
+    t_chunk *bin = heap->bin;
+    t_chunk *current_chunk = bin;
     if (size < 16) {
         size = 16;
     }
@@ -36,13 +37,14 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
     // - size of header + previous_size of next_chunk >= size)
     while (current_chunk != NULL) {
         if (size + 8 <= current_chunk->size) {
-            remove_chunk(current_chunk, bin);
+            remove_chunk(current_chunk, &bin);
             return (current_chunk);
         }
         current_chunk = current_chunk->next_free_chunk;
     }
 
-    return (NULL);
+    heap->next = initialize_segment();
+    return (find_fitting_chunk(size, heap->next));
 }
 
 t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {

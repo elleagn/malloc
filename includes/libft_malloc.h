@@ -103,7 +103,7 @@ extern t_arena arena;
  * @param size the size fo the memory being requested
  * @param bin the bin to go through
  */
-t_chunk *find_fitting_chunk(size_t size, t_chunk **bin);
+t_chunk *find_fitting_chunk(size_t size, t_segment *heap);
 
 /**
  * @brief Resizes the chunk to the minimum possible size that can store an

@@ -13,21 +13,21 @@ void print_empty_line() {
     printf("|");
 }
 
-void print_heap_header() {
+void print_heap_header(t_segment *heap) {
 
     printf("HEAP HEADER\n\n");
-    printf("Address = %p\n Size = %lu\n\n", arena.heap, arena.heap->size);
+    printf("Address = %p\n Size = %lu\n\n", heap, heap->size);
 }
 
-void print_chunks() {
-    uintptr_t ptr_value = (uintptr_t)arena.heap + SEGMENT_HEADER_SIZE;
+void print_chunks(t_segment *heap) {
+    uintptr_t ptr_value = (uintptr_t)heap + SEGMENT_HEADER_SIZE;
     t_chunk  *chunk = (t_chunk *)ptr_value;
     t_chunk  *next_chunk =
         (t_chunk *)(ptr_value + chunk->size - (chunk->size & 7));
 
     printf("CHUNKS\n\n");
     while ((uintptr_t)next_chunk <
-           (uintptr_t)arena.heap + arena.heap->size - 8) {
+           (uintptr_t)heap + heap->size - 8) {
         printf("Address: %p\n", chunk);
         printf("Size: %lu\n", chunk->size);
         if (next_chunk->size % 8 == 0) {
@@ -45,6 +45,10 @@ void print_chunks() {
 }
 
 void print_heap() {
-    print_heap_header();
-    print_chunks();
+    t_segment *heap = arena.heap;
+    while (heap) {
+        print_heap_header(heap);
+        print_chunks(heap);
+        heap = heap->next;
+    }
 }
