@@ -15,8 +15,9 @@
  *	    |             Unused space (may be 0 bytes long)                .
  *	    .                                                               .
  *	    .                                                               |
- *  nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      |             Size of chunk, in bytes                           |
+ *  nextchunk->
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ |    Size
+ * of chunk, in bytes                           |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Size of next chunk, in bytes                |0|0|0|
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -25,10 +26,9 @@
  * to the next and previous chunk if the chunk is freed + we overwrite the size
  * of chunk of the next byte.
  */
-t_chunk *find_fitting_chunk(size_t size, t_segment *heap) {
+t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
-    t_chunk *bin = heap->bin;
-    t_chunk *current_chunk = bin;
+    t_chunk *current_chunk = *bin;
     if (size < 16) {
         size = 16;
     }
@@ -37,14 +37,13 @@ t_chunk *find_fitting_chunk(size_t size, t_segment *heap) {
     // - size of header + previous_size of next_chunk >= size)
     while (current_chunk != NULL) {
         if (size + 8 <= current_chunk->size) {
-            remove_chunk(current_chunk, &heap->bin);
+            remove_chunk(current_chunk, bin);
             return (current_chunk);
         }
         current_chunk = current_chunk->next_free_chunk;
     }
 
-    heap->next = initialize_segment();
-    return (find_fitting_chunk(size, heap->next));
+    return (NULL);
 }
 
 t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
@@ -61,12 +60,40 @@ t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     }
 
     chunk->size = new_size + flags;
-    size_t remainder_size = old_size - new_size + PREV_INUSE;
-    t_chunk *remainder_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
+    size_t   remainder_size = old_size - new_size + PREV_INUSE;
+    t_chunk *remainder_chunk =
+        (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
     remainder_chunk->size = remainder_size;
-    size_t *end_tag = (size_t *)((uintptr_t)remainder_chunk + remainder_chunk->size - PREV_INUSE);
+    size_t *end_tag = (size_t *)((uintptr_t)remainder_chunk +
+                                 remainder_chunk->size - PREV_INUSE);
     *end_tag = remainder_chunk->size;
     add_chunk(remainder_chunk, bin);
 
     return (chunk);
+}
+
+/**
+ * @brief Search for the first fitting chunk in the heap with a usable size
+ * >= size, and resize it if necessary
+ * @param size The size of the memory requested
+ * @return A chunk of the minimal size required to contain data of size size
+ */
+t_chunk *get_chunk(size_t size) {
+
+    t_segment *heap = arena.heap;
+    t_chunk   *chunk = NULL;
+
+    // Search through all the existing bins and create a new one if no chunk
+    // fits
+    while (chunk == NULL) {
+        chunk = find_fitting_chunk(size, &heap->bin);
+        if (heap->next == NULL && chunk == NULL) {
+            heap->next = initialize_segment();
+        }
+        heap = heap->next;
+    }
+
+    chunk = resize_chunk(chunk, size, &heap->bin);
+    return (chunk);
+
 }
