@@ -37,7 +37,7 @@ t_chunk *find_fitting_chunk(size_t size, t_segment *heap) {
     // - size of header + previous_size of next_chunk >= size)
     while (current_chunk != NULL) {
         if (size + 8 <= current_chunk->size) {
-            remove_chunk(current_chunk, &bin);
+            remove_chunk(current_chunk, &heap->bin);
             return (current_chunk);
         }
         current_chunk = current_chunk->next_free_chunk;
