@@ -129,7 +129,7 @@ extern t_arena arena;
  * @param size The size of the memory requested
  * @return A chunk of the minimal size required to contain data of size size
  */
-t_chunk *get_chunk(size_t size);
+t_chunk *get_small_chunk(size_t size);
 
 /**
  * @brief Add chunk to the bin.
@@ -144,6 +144,9 @@ void    add_chunk(t_chunk *chunk, t_chunk **bin);
  * @param bin the bin (doubly linked list of chunks) to remove the chunk from
  */
 void    remove_chunk(t_chunk *chunk, t_chunk **bin);
+
+t_big_chunk *init_big_chunk(size_t size);
+void        add_big_chunk(t_big_chunk *chunk);
 
 /**
  * @brief Request memory for the segment with mmap + fills the header

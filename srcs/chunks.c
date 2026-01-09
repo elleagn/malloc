@@ -88,23 +88,16 @@ t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     return (chunk);
 }
 
-t_chunk *allocate_large_chunk(size_t size) {
-    
-}
-
-t_chunk *get_chunk(size_t size) {
+t_chunk *get_small_chunk(size_t size) {
 
     t_segment *heap;
     size_t      max_size;
     if (size <= MAX_TINY_SIZE) {
         heap = arena.tiny_heap;
         max_size = MAX_TINY_SIZE;
-    } else if (size <= MAX_SMALL_SIZE) {
+    } else {
         heap = arena.small_heap;
         max_size = MAX_SMALL_SIZE;
-    } else {
-        heap = arena.heap;
-        max_size = 1000;
     }
 
     t_chunk *chunk = find_fitting_chunk(size, &heap->bin);

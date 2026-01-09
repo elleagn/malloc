@@ -61,10 +61,10 @@ void print_heap() {
         heap = heap->next;
     }
     printf("BIG HEAP\n\n");
-    heap = arena.heap;
-    while (heap) {
-        print_heap_header(heap);
-        print_chunks(heap);
-        heap = heap->next;
+    t_big_chunk *big_heap = arena.big_heap;
+    while (big_heap) {
+        printf("Address: %p\n", big_heap);
+        printf("Size: %lu\n", big_heap->size);
+        big_heap = big_heap->next;
     }
 }

@@ -2,7 +2,7 @@
 #include "libft_malloc.h"
 #include <sys/mman.h>
 
-t_arena arena = {NULL, NULL, NULL};
+t_arena arena = {NULL, NULL, NULL, NULL};
 
 void *malloc(size_t size) {
 
@@ -12,9 +12,15 @@ void *malloc(size_t size) {
         arena.heap = initialize_segment(1000);
     }
 
-    t_chunk *chunk = get_chunk(size);
-
-    void *ptr = (void *)((uintptr_t)chunk + 16);
+    void *ptr = NULL;
+    if (size <= MAX_SMALL_SIZE) {
+        t_chunk *chunk = get_small_chunk(size);
+        ptr = (void *)((uintptr_t)chunk + 16);
+    } else {
+        t_big_chunk *chunk = init_big_chunk(size);
+        add_big_chunk(chunk);
+        ptr = (void *)((uintptr_t)chunk + 24);
+    }
     return ptr;
 
 }
