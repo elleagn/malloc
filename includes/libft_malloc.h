@@ -97,23 +97,14 @@ typedef struct s_arena {
 
 extern t_arena arena;
 
-/**
- * @brief Goes through the heap's bin until it finds a chunk with a usable space
- * >= size.
- * @param size the size fo the memory being requested
- * @param bin the bin to go through
- */
-t_chunk *find_fitting_chunk(size_t size, t_segment *heap);
 
 /**
- * @brief Resizes the chunk to the minimum possible size that can store an
- * object of size size. The remainder chunk is added to the bin.
- * @param chunk the chunk to resize
- * @param size the size of the data the new chunk must be able to fit
- * @param bin the bin where to put the remainder chunk
- * @return  Returns chunk
+ * @brief Search for the first fitting chunk in the heap with a usable size
+ * >= size, and resize it if necessary
+ * @param size The size of the memory requested
+ * @return A chunk of the minimal size required to contain data of size size
  */
-t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
+t_chunk *get_chunk(size_t size);
 
 /**
  * @brief Add chunk to the bin.
