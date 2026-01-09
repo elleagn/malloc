@@ -88,6 +88,10 @@ t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     return (chunk);
 }
 
+t_chunk *allocate_large_chunk(size_t size) {
+    
+}
+
 t_chunk *get_chunk(size_t size) {
 
     t_segment *heap;

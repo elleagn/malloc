@@ -92,15 +92,32 @@ typedef struct s_segment {
 } t_segment;
 
 /**
+ * Big chunks are directly mmaped, and wont be reused so they are automatically
+ * unmmaped on free. They are not on consecutive blocks of memory so they are
+ * stored in a double linked list, whith their size additionnaly store din the
+ * header.
+ */
+
+typedef struct s_big_chunk {
+    size_t              size;
+    struct s_big_chunk    *next;
+    struct s_big_chunk    *prev;
+}   t_big_chunk;
+
+/**
  * The arena stores the addresses of the different heaps.
  * Allocations smaller than MAX_TINY_SIZE are stored in the tiny_heap and
- * allocations smaller than MAX_SMALL_SIZE are stored in the small_heaptg
+ * allocations smaller than MAX_SMALL_SIZE are stored in the small_heap.
+ * Bigger allocation are stored in big chunks. Each big chunk represents a
+ * different mmaped area, they are ummaped as soon as they are free and not
+ * reused.
  */
 
 typedef struct s_arena {
     t_segment *tiny_heap;
     t_segment *small_heap;
     t_segment *heap;
+    t_big_chunk *big_heap;
 } t_arena;
 
 extern t_arena arena;
