@@ -3,12 +3,12 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
-t_segment *initialize_segment(void) {
+t_segment *initialize_segment(size_t size) {
 
     // Calculate the smallest multiple of page size that can contain 100
     // allocations + the header
     size_t page_size = sysconf(_SC_PAGESIZE);
-    size_t segment_min_size = 100 * (MAX_SMALL_SIZE + 16) + SEGMENT_HEADER_SIZE;
+    size_t segment_min_size = 100 * (size + 16) + SEGMENT_HEADER_SIZE;
     size_t segment_size = (segment_min_size / page_size + 1) * page_size;
 
     t_segment *segment = mmap(NULL, segment_size, PROT_READ | PROT_WRITE,

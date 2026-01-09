@@ -90,14 +90,26 @@ t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 
 t_chunk *get_chunk(size_t size) {
 
-    t_segment *heap = arena.heap;
-    t_chunk   *chunk = find_fitting_chunk(size, &heap->bin);
+    t_segment *heap;
+    size_t      max_size;
+    if (size <= MAX_TINY_SIZE) {
+        heap = arena.tiny_heap;
+        max_size = MAX_TINY_SIZE;
+    } else if (size <= MAX_SMALL_SIZE) {
+        heap = arena.small_heap;
+        max_size = MAX_SMALL_SIZE;
+    } else {
+        heap = arena.heap;
+        max_size = 1000;
+    }
+
+    t_chunk *chunk = find_fitting_chunk(size, &heap->bin);
 
     // Search through all the existing bins and create a new one if no chunk
     // fits
     while (chunk == NULL) {
         if (heap->next == NULL) {
-            heap->next = initialize_segment();
+            heap->next = initialize_segment(max_size);
         }
         heap = heap->next;
         chunk = find_fitting_chunk(size, &heap->bin);

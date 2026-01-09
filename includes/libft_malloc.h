@@ -91,7 +91,15 @@ typedef struct s_segment {
     struct s_segment    *next;
 } t_segment;
 
+/**
+ * The arena stores the addresses of the different heaps.
+ * Allocations smaller than MAX_TINY_SIZE are stored in the tiny_heap and
+ * allocations smaller than MAX_SMALL_SIZE are stored in the small_heaptg
+ */
+
 typedef struct s_arena {
+    t_segment *tiny_heap;
+    t_segment *small_heap;
     t_segment *heap;
 } t_arena;
 
@@ -124,7 +132,7 @@ void    remove_chunk(t_chunk *chunk, t_chunk **bin);
  * @brief Request memory for the segment with mmap + fills the header
  * @return The segement, ready to be used
  */
-t_segment *initialize_segment(void);
+t_segment *initialize_segment(size_t size);
 void   *malloc(size_t size);
 
 void print_heap();

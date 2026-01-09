@@ -45,7 +45,23 @@ void print_chunks(t_segment *heap) {
 }
 
 void print_heap() {
-    t_segment *heap = arena.heap;
+
+    printf("TINY HEAP\n\n");
+    t_segment *heap = arena.tiny_heap;
+    while (heap) {
+        print_heap_header(heap);
+        print_chunks(heap);
+        heap = heap->next;
+    }
+    printf("SMALL HEAP\n\n");
+    heap = arena.small_heap;
+    while (heap) {
+        print_heap_header(heap);
+        print_chunks(heap);
+        heap = heap->next;
+    }
+    printf("BIG HEAP\n\n");
+    heap = arena.heap;
     while (heap) {
         print_heap_header(heap);
         print_chunks(heap);
