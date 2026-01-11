@@ -96,12 +96,15 @@ typedef struct s_segment {
  * unmmaped on free. They are not on consecutive blocks of memory so they are
  * stored in a double linked list, whith their size additionnaly store din the
  * header.
+ * The size must be just before the data, so it can be retrieved by looking at
+ * the memory right before the pointer whether it is a chunk or big chunk, when
+ * calling malloc or realloc on it.
  */
 
 typedef struct s_big_chunk {
-    size_t              size;
     struct s_big_chunk    *next;
     struct s_big_chunk    *prev;
+    size_t                size;
 }   t_big_chunk;
 
 /**
