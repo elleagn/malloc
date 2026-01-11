@@ -17,7 +17,7 @@ t_big_chunk *init_big_chunk(size_t size) {
 }
 
 void add_big_chunk(t_big_chunk *chunk) {
-    if (arena.big_heap != NULL) {
+    if (arena.big_heap == NULL) {
         arena.big_heap = chunk;
         return;
     }
