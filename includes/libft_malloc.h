@@ -8,6 +8,8 @@
 #define MAX_SMALL_SIZE 512
 
 #define SEGMENT_HEADER_SIZE 24
+#define CHUNK_HEADER_SIZE 16
+#define BIG_CHUNK_HEADER_SIZE 24
 
 /**
  * Reimplementation of a dynamic memory allocator.
@@ -150,6 +152,7 @@ void    remove_chunk(t_chunk *chunk, t_chunk **bin);
 
 t_big_chunk *init_big_chunk(size_t size);
 void        add_big_chunk(t_big_chunk *chunk);
+void        remove_big_chunk(t_big_chunk *chunk);
 
 /**
  * @brief Request memory for the segment with mmap + fills the header
@@ -157,7 +160,7 @@ void        add_big_chunk(t_big_chunk *chunk);
  */
 t_segment *initialize_segment(size_t size);
 void   *malloc(size_t size);
-
+void    free(void *ptr);
 void print_heap();
 
 #endif

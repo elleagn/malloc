@@ -1,17 +1,57 @@
 #include "libft_malloc.h"
+#include <stdint.h>
 
+t_segment *find_right_segment(t_chunk *chunk) {
+    t_segment *segment = arena.tiny_heap;
+    uintptr_t  chunk_address = chunk;
+    uintptr_t  segment_address;
 
-void    free(void *ptr) {
+    if (chunk->size - 8 > MAX_TINY_SIZE) {
+        segment = arena.small_heap;
+    }
+
+    while (segment != NULL) {
+        segment_address = segment;
+        if (segment_address < chunk_address &&
+            chunk_address < segment_address + segment->size) {
+            return (segment);
+        }
+        segment = segment->next;
+    }
+
+    return (NULL);
+}
+
+void free(void *ptr) {
     if (ptr == NULL) {
-        return ;
+        return;
     }
 
     // Retrieve the size of the allocated space, stored right before the pointer
     // address
-    // TODO uintptr_t
-    size_t size = (size_t)(ptr - sizeof(size_t));
+    uintptr_t address = ptr;
+    size_t    size = *(size_t *)(address - sizeof(size_t));
 
-    if (size > MAX_SMALL_SIZE) {
-        t_big_chunk *chunk = (t_big_chunk *)(ptr - HEADER);
+    // In cas of big chunk, just ummap the address and remove it from the list
+    if (size - 8 > MAX_SMALL_SIZE) {
+        t_big_chunk *chunk = (t_big_chunk *)(address - BIG_CHUNK_HEADER_SIZE);
+        remove_big_chunk(chunk);
+        return;
     }
+
+    t_chunk  *chunk = (t_chunk *)(address - CHUNK_HEADER_SIZE);
+    uintptr_t chunk_address = chunk;
+    t_chunk  *next_chunk = (t_chunk *)(chunk_address + chunk->size);
+    uintptr_t next_chunk_address = next_chunk;
+
+    // Put back the end boundary tag (ie prev size of the next chunk) + update
+    // the next chunk's size end flag (because the previous bloc is free)
+    next_chunk->prev_size = chunk->size;
+    next_chunk->size = next_chunk->size - PREV_INUSE;
+    size_t *next_end_tag = (size_t *)(next_chunk_address + next_chunk->size);
+    *next_end_tag = next_chunk->size;
+
+    // Find the segment with the right address range for the chunk
+    t_segment *segment = find_right_segment(chunk);
+    add_chunk(chunk, &segment->bin);
 }
