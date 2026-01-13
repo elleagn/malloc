@@ -33,9 +33,11 @@ void add_big_chunk(t_big_chunk *chunk) {
 void remove_big_chunk(t_big_chunk *chunk) {
     if (chunk->prev == NULL) {
         arena.big_heap = chunk->next;
-        return;
+    } else {
+        chunk->prev->next = chunk->next;
     }
-    chunk->prev->next = chunk->next;
-    chunk->next->prev = chunk->prev;
+    if (chunk->next != NULL) {
+        chunk->next->prev = chunk->prev;
+    }
     munmap((void *)chunk, chunk->size);
 }

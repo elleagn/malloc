@@ -3,7 +3,7 @@
 
 t_segment *find_right_segment(t_chunk *chunk) {
     t_segment *segment = arena.tiny_heap;
-    uintptr_t  chunk_address = chunk;
+    uintptr_t  chunk_address = (uintptr_t)chunk;
     uintptr_t  segment_address;
 
     if (chunk->size - 8 > MAX_TINY_SIZE) {
@@ -11,7 +11,7 @@ t_segment *find_right_segment(t_chunk *chunk) {
     }
 
     while (segment != NULL) {
-        segment_address = segment;
+        segment_address = (uintptr_t)segment;
         if (segment_address < chunk_address &&
             chunk_address < segment_address + segment->size) {
             return (segment);
@@ -29,7 +29,7 @@ void free(void *ptr) {
 
     // Retrieve the size of the allocated space, stored right before the pointer
     // address
-    uintptr_t address = ptr;
+    uintptr_t address = (uintptr_t)ptr;
     size_t    size = *(size_t *)(address - sizeof(size_t));
 
     // In cas of big chunk, just ummap the address and remove it from the list
@@ -40,18 +40,24 @@ void free(void *ptr) {
     }
 
     t_chunk  *chunk = (t_chunk *)(address - CHUNK_HEADER_SIZE);
-    uintptr_t chunk_address = chunk;
+    uintptr_t chunk_address = (uintptr_t)chunk;
     t_chunk  *next_chunk = (t_chunk *)(chunk_address + chunk->size);
-    uintptr_t next_chunk_address = next_chunk;
+    uintptr_t next_chunk_address = (uintptr_t)next_chunk;
 
     // Put back the end boundary tag (ie prev size of the next chunk) + update
     // the next chunk's size end flag (because the previous bloc is free)
+
+    /////////////////////////////////////////////////////////////
+    ///PROBLEM IS HERE, size of next chunk is wrongly modified///
+    ////////////////////////////////////////////////////////////
     next_chunk->prev_size = chunk->size;
     next_chunk->size = next_chunk->size - PREV_INUSE;
     size_t *next_end_tag = (size_t *)(next_chunk_address + next_chunk->size);
     *next_end_tag = next_chunk->size;
 
-    // Find the segment with the right address range for the chunk
+    // Find the segment with the right address range for the chunk and insert it
+    chunk->next_free_chunk = NULL;
+    chunk->prev_free_chunk  = NULL;
     t_segment *segment = find_right_segment(chunk);
     add_chunk(chunk, &segment->bin);
 }

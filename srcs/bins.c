@@ -21,10 +21,10 @@ void add_chunk(t_chunk *chunk, t_chunk **bin) {
 
     if (*bin == NULL) {
         *bin = chunk;
-        return ;
+        return;
     }
 
-    t_chunk *next = (*bin)->next_free_chunk;
+    t_chunk *next = (*bin)->next_free_chunk ? (*bin)->next_free_chunk : *bin;
     t_chunk *prev = (*bin);
     chunk->prev_free_chunk = prev;
     chunk->next_free_chunk = next;
