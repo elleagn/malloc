@@ -41,7 +41,7 @@ void free(void *ptr) {
 
     t_chunk  *chunk = (t_chunk *)(address - CHUNK_HEADER_SIZE);
     uintptr_t chunk_address = (uintptr_t)chunk;
-    t_chunk  *next_chunk = (t_chunk *)(chunk_address + chunk->size);
+    t_chunk  *next_chunk = (t_chunk *)(chunk_address + ((chunk->size / 8) << 3));
     uintptr_t next_chunk_address = (uintptr_t)next_chunk;
 
     // Put back the end boundary tag (ie prev size of the next chunk) + update
@@ -50,6 +50,8 @@ void free(void *ptr) {
     /////////////////////////////////////////////////////////////
     ///PROBLEM IS HERE, size of next chunk is wrongly modified///
     ////////////////////////////////////////////////////////////
+    chunk->next_free_chunk = NULL;
+    chunk->prev_free_chunk = NULL;
     next_chunk->prev_size = chunk->size;
     next_chunk->size = next_chunk->size - PREV_INUSE;
     size_t *next_end_tag = (size_t *)(next_chunk_address + next_chunk->size);

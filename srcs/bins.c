@@ -11,7 +11,7 @@ void remove_chunk(t_chunk *chunk, t_chunk **bin) {
 
     if (next != NULL) {
         next->prev_free_chunk = prev;
-    }
+    } 
     if (prev != NULL) {
         prev->next_free_chunk = next;
     }
