@@ -47,9 +47,6 @@ void free(void *ptr) {
     // Put back the end boundary tag (ie prev size of the next chunk) + update
     // the next chunk's size end flag (because the previous bloc is free)
 
-    /////////////////////////////////////////////////////////////
-    ///PROBLEM IS HERE, size of next chunk is wrongly modified///
-    ////////////////////////////////////////////////////////////
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
     next_chunk->prev_size = chunk->size;
