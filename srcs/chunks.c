@@ -60,7 +60,7 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
  * @param bin the bin where to put the remainder chunk
  * @return  Returns chunk
  */
-t_chunk *resize_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
+t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 
     // Size is minimum 16 to be able to store the pointers to the previous +
     // next chunk in the bin when it is freed
@@ -112,6 +112,6 @@ t_chunk *get_small_chunk(size_t size) {
         chunk = find_fitting_chunk(size, &heap->bin);
     }
 
-    chunk = resize_chunk(chunk, size, &heap->bin);
+    chunk = split_chunk(chunk, size, &heap->bin);
     return (chunk);
 }

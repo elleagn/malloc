@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 
-coalesce_chunk(t_chunk *chunk, t_chunk **bin) {
+void coalesce_chunk(t_chunk *chunk, t_chunk **bin) {
 
     size_t flag = chunk->prev_size % 8;
     size_t prev_size = chunk->prev_size - flag;
@@ -13,4 +13,6 @@ coalesce_chunk(t_chunk *chunk, t_chunk **bin) {
 
     size_t *next_prev_size = (size_t *)((uintptr_t)chunk + size);
     *next_prev_size = *new_size;
+
+    remove_chunk(chunk, bin);
 }

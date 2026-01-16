@@ -149,6 +149,9 @@ void    add_chunk(t_chunk *chunk, t_chunk **bin);
  * @param bin the bin (doubly linked list of chunks) to remove the chunk from
  */
 void    remove_chunk(t_chunk *chunk, t_chunk **bin);
+void    coalesce_chunk(t_chunk *chunk, t_chunk **bin);
+t_chunk   *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
+t_segment *find_right_segment(t_chunk *chunk);
 
 t_big_chunk *init_big_chunk(size_t size);
 void        add_big_chunk(t_big_chunk *chunk);
