@@ -26,7 +26,7 @@
 
 /**
  * Chunks of memory are delimited by a 'boundary tag' (ie the size of free chunks
- * is stored both at the beginning and at the end of each chunk). The last 3 bytes
+ * is stored bprint_heap();oth at the beginning and at the end of each chunk). The last 3 bytes
  * are used as flags (to know if previous chunk was in use).
  *
  * Allocated chunks look like this:
@@ -58,7 +58,7 @@
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Back pointer to previous chunk in list            |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |             Unused space (may be 0 bytes long)                .
+ *	    |     print_heap();        Unused space (may be 0 bytes long)                .
  *	    .                                                               .
  *	    .                                                               |
  *  nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -152,6 +152,7 @@ void    remove_chunk(t_chunk *chunk, t_chunk **bin);
 void    coalesce_chunk(t_chunk *chunk, t_chunk **bin);
 t_chunk   *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
 t_segment *find_right_segment(t_chunk *chunk);
+size_t  get_chunk_size(t_chunk *chunk);
 
 t_big_chunk *init_big_chunk(size_t size);
 void        add_big_chunk(t_big_chunk *chunk);
@@ -164,6 +165,7 @@ void        remove_big_chunk(t_big_chunk *chunk);
 t_segment *initialize_segment(size_t size);
 void   *malloc(size_t size);
 void    free(void *ptr);
+void *realloc(void *ptr, size_t size);
 void print_heap();
 
 #endif

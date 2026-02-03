@@ -11,7 +11,7 @@ CFLAGS = -Wall -Wextra -Werror -g -MMD -MP
 LIBFT = libft/libft.a
 SRC_DIR = srcs
 SRC_FILES = malloc.c heap.c bins.c chunks.c print_heap.c big_chunks.c free.c \
-			coalescing.c
+			coalescing.c realloc.c
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 OBJ_DIR = objects
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)

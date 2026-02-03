@@ -115,3 +115,7 @@ t_chunk *get_small_chunk(size_t size) {
     chunk = split_chunk(chunk, size, &heap->bin);
     return (chunk);
 }
+
+size_t get_chunk_size(t_chunk *chunk) {
+    return (chunk->size - chunk->size % 8);
+}

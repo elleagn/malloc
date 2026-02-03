@@ -3,6 +3,7 @@
 
 void *malloc(size_t size);
 void free(void *ptr);
+void *realloc(void *ptr, size_t size);
 void print_heap();
 
 int main(void) {
@@ -22,8 +23,12 @@ int main(void) {
     free(ptr2);
     free(ptr3);
     free(ptr4);
-    print_heap();
     // print_heap();
 //    strcpy(ptr, "123");
 //    printf("%s\n", ptr);
+    int *ptr5 = malloc(10);
+    print_heap();
+    printf("\n\n\n\n\n");
+    ptr5 = realloc(ptr5, 30);
+    print_heap();
 }
