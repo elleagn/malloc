@@ -35,6 +35,8 @@ void print_chunks(t_segment *heap) {
         } else {
             printf("Used\n");
         }
+        if (chunk->size % 8 == 0)
+            printf("Prev_size: %lu\n", chunk->prev_size);
         ptr_value += chunk->size - (chunk->size & 7);
         chunk = (t_chunk *)ptr_value;
         next_chunk = (t_chunk *)(ptr_value + chunk->size - (chunk->size & 7));

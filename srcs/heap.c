@@ -22,7 +22,7 @@ t_segment *initialize_segment(size_t size) {
     segment->bin = chunk;
     chunk->prev_size = 0;
     chunk->size =
-        segment_size - SEGMENT_HEADER_SIZE - 8 + PREV_INUSE; // -8 for end tag
+    segment_size - SEGMENT_HEADER_SIZE - 8 + PREV_INUSE; // -8 for end tag
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
 

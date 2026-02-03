@@ -38,6 +38,7 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
     if (size < 16) {
         size = 16;
     }
+    t_chunk *previous_chunk = NULL;
 
     // Looking for a chunk that can contain size (usable_size = chunk->size
     // - size of header + previous_size of next_chunk >= size)
@@ -46,7 +47,15 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
             remove_chunk(current_chunk, bin);
             return (current_chunk);
         }
-        current_chunk = current_chunk->next_free_chunk;
+        if (current_chunk->size % 8 == 0) {
+            previous_chunk = (t_chunk *)((uintptr_t)current_chunk -
+                                         current_chunk->prev_size +
+                                         current_chunk->prev_size % 8);
+            coalesce_chunk(current_chunk, bin);
+            current_chunk = previous_chunk;
+        } else {
+            current_chunk = current_chunk->next_free_chunk;
+        }
     }
 
     return (NULL);
@@ -91,7 +100,7 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 t_chunk *get_small_chunk(size_t size) {
 
     t_segment *heap;
-    size_t      max_size;
+    size_t     max_size;
     if (size <= MAX_TINY_SIZE) {
         heap = arena.tiny_heap;
         max_size = MAX_TINY_SIZE;

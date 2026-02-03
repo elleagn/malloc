@@ -85,7 +85,7 @@ void *realloc(void *ptr, size_t size) {
 
     void  *result = NULL;
     if (new_chunk != NULL) {
-        result = (void *)((uintptr_t)new_chunk + 16);
+        return ((void *)((uintptr_t)new_chunk + 16));
     } else {
         result = malloc(size);
         ft_memmove(result, ptr, chunk->size - 8);
