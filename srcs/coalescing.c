@@ -2,6 +2,12 @@
 #include <stdint.h>
 
 
+/**
+ * @brief Coalesce chunk with the previous one. Does not modify the data stored
+ * by the previous chunk
+ * @param chunk The chunk to fuse with the previous one
+ * @param bin The bin that stores the empty chunk, to be able to remove it
+ */
 void coalesce_chunk(t_chunk *chunk, t_chunk **bin) {
 
     size_t flag = chunk->prev_size % 8;

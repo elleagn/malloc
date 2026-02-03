@@ -12,7 +12,7 @@ t_segment *initialize_segment(size_t size) {
     size_t segment_size = (segment_min_size / page_size + 1) * page_size;
 
     t_segment *segment = mmap(NULL, segment_size, PROT_READ | PROT_WRITE,
-                           MAP_PRIVATE | MAP_ANON, -1, 0);
+                              MAP_PRIVATE | MAP_ANON, -1, 0);
     segment->size = segment_size;
     segment->next = NULL;
 
@@ -21,7 +21,8 @@ t_segment *initialize_segment(size_t size) {
     t_chunk  *chunk = (t_chunk *)(ptr_value + SEGMENT_HEADER_SIZE);
     segment->bin = chunk;
     chunk->prev_size = 0;
-    chunk->size = segment_size - SEGMENT_HEADER_SIZE - 8 + PREV_INUSE;
+    chunk->size =
+        segment_size - SEGMENT_HEADER_SIZE - 8 + PREV_INUSE; // -8 for end tag
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
 

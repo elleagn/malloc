@@ -2,6 +2,12 @@
 #include "libft_malloc.h"
 #include <stdint.h>
 
+/**
+ * @brief Check if a chunk is in use by looking at the prev_size member of the
+ * next chunk
+ * @param chunk The chunk to assess
+ * @return The PREV_INUSE flag of the next chunk
+ */
 int is_in_use(t_chunk *chunk) {
     t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
     int      flag = next_chunk->size % 8;
@@ -14,11 +20,11 @@ int is_in_use(t_chunk *chunk) {
  * @todo END OF THE HEAP
  * @param chunk The chunk after which to look for space
  * @param size The desired total space (including the beginning chunk)
- * @return The potential free size
+ * @return The potential size of the new chunk
  */
 size_t find_free_space(t_chunk *chunk, size_t size) {
     t_chunk *current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
-    size_t   potential_size = chunk->size - 8;
+    size_t   potential_size = chunk->size - sizeof(size_t);
 
     while (!is_in_use(current_chunk) && size > potential_size) {
         potential_size += current_chunk->size;
@@ -29,22 +35,24 @@ size_t find_free_space(t_chunk *chunk, size_t size) {
 }
 
 /**
- * @brief If there is enough free spaces next to the chunk, expands it to the
- * desired size. The data contained in the chunk is unaffected. Nothing is
- * changed if the wasn't enough free space.
+ * @brief Fuses the chunks next to the given chunks until either a used one is
+ * found or the chunk size is bigger than size.
  * @todo chunk expansion
  * @param chunk The chunk to expand
  * @param bin The bin of the chunk's bin, to remove the next chunks if need be
  * @param size The desired size of the new chunk
- * @return The expanded chunk if enough free space was found, 0 otherwise
  */
 
-t_chunk *try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
-    size_t free_space = find_free_space(chunk, size);
+void *try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
+    t_chunk *current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
+    while (!is_in_use(current_chunk) && size > chunk->size) {
+        coalesce_chunk(current_chunk, bin);
+        current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
+    }
 }
 
 /**
- * @todo DON'T GO BEYOND HEAP + smaller functions
+ * @todo smaller functions
  */
 void *realloc(void *ptr, size_t size) {
 
@@ -62,13 +70,17 @@ void *realloc(void *ptr, size_t size) {
     t_chunk   *next_chunk = (t_chunk *)((uintptr_t)ptr_chunk + ptr_chunk->size);
     void      *result = NULL;
 
+    // Check if we will go past the heap
+    if ((uintptr_t)ptr_chunk + 16 + size <
+        (uintptr_t)ptr_heap + ptr_heap->size) {
+        try_expand_chunk(ptr_chunk, &ptr_heap->bin, size);
+    }
     if (size < ptr_chunk->size - sizeof(size_t)) {
         new_chunk = split_chunk(ptr_chunk, size, &ptr_heap->bin);
         result = (void *)((uintptr_t)new_chunk + 16);
         return (result);
     }
 
-    new_chunk = try_expand_chunk(ptr_chunk, &ptr_heap->bin, size);
     if (new_chunk != NULL) {
         result = (void *)((uintptr_t)new_chunk + 16);
     } else {
