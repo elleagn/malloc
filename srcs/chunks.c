@@ -35,8 +35,8 @@
 t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
     t_chunk *current_chunk = *bin;
-    if (size < 16) {
-        size = 16;
+    if (size < 24) {
+        size = 24;
     }
     t_chunk *previous_chunk = NULL;
 
@@ -71,9 +71,9 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
  */
 t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 
-    // Size is minimum 16 to be able to store the pointers to the previous +
+    // Size is minimum 24 to be able to store the pointers to the previous +
     // next chunk in the bin when it is freed
-    size_t usable_size = size >= 16 ? size : 16;
+    size_t usable_size = size >= 24 ? size : 24;
     if (usable_size % 8 != 0) {
         usable_size = size - size % 8 + 8;
     }

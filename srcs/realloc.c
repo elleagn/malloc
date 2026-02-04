@@ -24,7 +24,7 @@ int is_in_use(t_chunk *chunk) {
  */
 
 void try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
-    t_chunk *current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
+    t_chunk *current_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
     while (!is_in_use(current_chunk) && size > chunk->size) {
         coalesce_chunk(current_chunk, bin);
         current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
