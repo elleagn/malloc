@@ -3,8 +3,8 @@
 #include "libft_malloc.h"
 #include <stdint.h>
 void print_heap();
-__attribute((constructor)) void init_arena();
-__attribute((destructor)) void free_arena();
+// __attribute((constructor)) void init_arena();
+// __attribute((destructor)) void free_arena();
 
 int main(void) {
     t_chunk   *chunk = NULL;
