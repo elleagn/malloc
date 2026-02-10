@@ -3,6 +3,8 @@
 #include "libft_malloc.h"
 #include <stdint.h>
 void print_heap();
+__attribute((constructor)) void init_arena();
+__attribute((destructor)) void free_arena();
 
 int main(void) {
     t_chunk   *chunk = NULL;
@@ -22,7 +24,7 @@ int main(void) {
     // printf("ptr3 %p\n", ptr3);
     // printf("ptr4 %p\n", ptr4);
     print_heap();
-    free(ptr);
+    // free(ptr);
     free(ptr2);
     free(ptr3);
     free(ptr4);

@@ -3,6 +3,24 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+void cleanup_empty_segments(t_segment *heap) {
+    t_segment *current_segment = heap;
+    t_segment *next_segment = heap->next;
+    t_chunk   *first_chunk;
+
+    while (next_segment != NULL) {
+        first_chunk = (t_chunk *)((uintptr_t)heap + SEGMENT_HEADER_SIZE);
+        if (!is_in_use(first_chunk) &&
+            first_chunk->size >= SEGMENT_HEADER_SIZE + 8 - PREV_INUSE) {
+                current_segment->next = next_segment->next;
+                munmap(next_segment, next_segment->size);
+        } else {
+            current_segment = next_segment;
+        }
+        next_segment = current_segment->next;
+    }
+}
+
 t_segment *initialize_segment(size_t size) {
 
     // Calculate the smallest multiple of page size that can contain 100
@@ -22,7 +40,7 @@ t_segment *initialize_segment(size_t size) {
     segment->bin = chunk;
     chunk->prev_size = 0;
     chunk->size =
-    segment_size - SEGMENT_HEADER_SIZE - 8 + PREV_INUSE; // -8 for end tag
+        segment_size - SEGMENT_HEADER_SIZE - 8 + PREV_INUSE; // -8 for end tag
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
 

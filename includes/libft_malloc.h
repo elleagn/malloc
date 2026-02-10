@@ -121,7 +121,6 @@ typedef struct s_big_chunk {
 typedef struct s_arena {
     t_segment *tiny_heap;
     t_segment *small_heap;
-    t_segment *heap;
     t_big_chunk *big_heap;
 } t_arena;
 
@@ -153,6 +152,8 @@ void    coalesce_chunk(t_chunk *chunk, t_chunk **bin);
 t_chunk   *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
 t_segment *find_right_segment(t_chunk *chunk);
 size_t  get_chunk_size(t_chunk *chunk);
+int     is_in_use(t_chunk *chunk);
+void cleanup_empty_segments(t_segment *heap);
 
 t_big_chunk *init_big_chunk(size_t size);
 void        add_big_chunk(t_big_chunk *chunk);
