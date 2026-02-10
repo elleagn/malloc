@@ -1,3 +1,4 @@
+#include "libft.h"
 #include "libft_malloc.h"
 #include "stdint.h"
 #include "stdio.h"
@@ -19,54 +20,52 @@ void print_heap_header(t_segment *heap) {
     printf("Address = %p\n Size = %lu\n\n", heap, heap->size);
 }
 
-void print_chunks(t_segment *heap) {
+void print_chunks(t_segment *heap, size_t *size) {
     uintptr_t ptr_value = (uintptr_t)heap + SEGMENT_HEADER_SIZE;
     t_chunk  *chunk = (t_chunk *)ptr_value;
     t_chunk  *next_chunk =
         (t_chunk *)(ptr_value + chunk->size - (chunk->size & 7));
 
-    printf("CHUNKS\n\n");
-    while ((uintptr_t)next_chunk <
-           (uintptr_t)heap + heap->size - 8) {
-        printf("Address: %p\n", chunk);
-        printf("Size: %lu\n", chunk->size);
-        if (next_chunk->size % 8 == 0) {
-            printf("Free\n");
-        } else {
-            printf("Used\n");
+    while ((uintptr_t)next_chunk < (uintptr_t)heap + heap->size - 8) {
+        if (is_in_use(chunk)) {
+            ft_printf("%p - %p : %u bytes\n", (uintptr_t)chunk,
+                   (uintptr_t)chunk + chunk->size, chunk->user_size);
+            *size += chunk->user_size;
         }
-        if (chunk->size % 8 == 0)
-            printf("Prev_size: %lu\n", chunk->prev_size);
         ptr_value += chunk->size - (chunk->size & 7);
         chunk = (t_chunk *)ptr_value;
         next_chunk = (t_chunk *)(ptr_value + chunk->size - (chunk->size & 7));
     }
-    printf("Address: %p\n", chunk);
-    printf("Size: %lu\n", chunk->size);
-    printf("\n");
+    if (is_in_use(chunk)) {
+            ft_printf("%p - %p : %u bytes\n", (uintptr_t)chunk,
+                   (uintptr_t)chunk + chunk->size, chunk->user_size);
+            *size += chunk->user_size;
+    }
 }
 
 void print_heap() {
 
-    printf("TINY HEAP\n\n");
+    size_t     total_size = 0;
     t_segment *heap = arena.tiny_heap;
+    ft_printf("TINY : %p\n", (uintptr_t)heap);
     while (heap) {
-        print_heap_header(heap);
-        print_chunks(heap);
+        print_chunks(heap, &total_size);
         heap = heap->next;
     }
-    printf("SMALL HEAP\n\n");
     heap = arena.small_heap;
+    ft_printf("SMALL : %p\n", (uintptr_t)heap);
     while (heap) {
-        print_heap_header(heap);
-        print_chunks(heap);
+        print_chunks(heap, &total_size);
         heap = heap->next;
     }
-    printf("BIG HEAP\n\n");
+
     t_big_chunk *big_heap = arena.big_heap;
     while (big_heap) {
-        printf("Address: %p\n", big_heap);
-        printf("Size: %lu\n", big_heap->size);
+        ft_printf("LARGE : %p\n", (uintptr_t)big_heap);
+        ft_printf("%p - %p : %u bytes\n", (uintptr_t)big_heap,
+                   (uintptr_t)big_heap + big_heap->size, big_heap->user_size);
+        total_size += big_heap->user_size;
         big_heap = big_heap->next;
     }
+    ft_printf("Total : %u bytes\n", total_size);
 }
