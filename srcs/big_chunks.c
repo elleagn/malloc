@@ -5,7 +5,8 @@ t_big_chunk *init_big_chunk(size_t size) {
 
     // Map a region of the desired size + space for the header
     t_big_chunk *chunk =
-        mmap(NULL, size + 24, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+        mmap(NULL, size + BIG_CHUNK_HEADER_SIZE, PROT_READ | PROT_WRITE,
+             MAP_PRIVATE | MAP_ANON, -1, 0);
 
     if (chunk != NULL) {
         chunk->next = NULL;

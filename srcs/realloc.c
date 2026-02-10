@@ -9,7 +9,7 @@
  * @return The PREV_INUSE flag of the next chunk
  */
 int is_in_use(t_chunk *chunk) {
-    t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
+    t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
     int      flag = next_chunk->size % 8;
     return (flag);
 }
@@ -88,7 +88,7 @@ void *realloc(void *ptr, size_t size) {
         return ((void *)((uintptr_t)new_chunk + 16));
     } else {
         result = malloc(size);
-        ft_memmove(result, ptr, chunk->size - 8);
+        ft_memmove(result, ptr, chunk->size - CHUNK_HEADER_SIZE + sizeof(void *));
         free(ptr);
     }
     return (result);

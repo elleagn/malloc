@@ -6,7 +6,7 @@ t_segment *find_right_segment(t_chunk *chunk) {
     uintptr_t  chunk_address = (uintptr_t)chunk;
     uintptr_t  segment_address;
 
-    if (chunk->size - 8 > MAX_TINY_SIZE) {
+    if (chunk->size - CHUNK_HEADER_SIZE + sizeof(void *) > MAX_TINY_SIZE) {
         segment = arena.small_heap;
     }
 
@@ -33,7 +33,7 @@ void free(void *ptr) {
     size_t    size = *(size_t *)(address - sizeof(size_t));
 
     // In cas of big chunk, just ummap the address and remove it from the list
-    if (size - 8 > MAX_SMALL_SIZE) {
+    if (size - CHUNK_HEADER_SIZE + sizeof(void *) > MAX_SMALL_SIZE) {
         t_big_chunk *chunk = (t_big_chunk *)(address - BIG_CHUNK_HEADER_SIZE);
         remove_big_chunk(chunk);
         return;
@@ -41,7 +41,7 @@ void free(void *ptr) {
 
     t_chunk  *chunk = (t_chunk *)(address - CHUNK_HEADER_SIZE);
     uintptr_t chunk_address = (uintptr_t)chunk;
-    t_chunk  *next_chunk = (t_chunk *)(chunk_address + ((chunk->size / 8) << 3));
+    t_chunk *next_chunk = (t_chunk *)(chunk_address + get_chunk_size(chunk));
     uintptr_t next_chunk_address = (uintptr_t)next_chunk;
 
     // Put back the end boundary tag (ie prev size of the next chunk) + update
@@ -56,7 +56,7 @@ void free(void *ptr) {
 
     // Find the segment with the right address range for the chunk and insert it
     chunk->next_free_chunk = NULL;
-    chunk->prev_free_chunk  = NULL;
+    chunk->prev_free_chunk = NULL;
     t_segment *segment = find_right_segment(chunk);
     add_chunk(chunk, &segment->bin);
 }

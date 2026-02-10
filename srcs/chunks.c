@@ -43,7 +43,7 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
     // Looking for a chunk that can contain size (usable_size = chunk->size
     // - size of header + previous_size of next_chunk >= size)
     while (current_chunk != NULL) {
-        if (size + 8 <= current_chunk->size) {
+        if (size - CHUNK_HEADER_SIZE + sizeof(void *) <= current_chunk->size) {
             remove_chunk(current_chunk, bin);
             return (current_chunk);
         }
@@ -75,12 +75,14 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     // next chunk in the bin when it is freed
     size_t usable_size = size >= 24 ? size : 24;
     if (usable_size % 8 != 0) {
-        usable_size = size - size % 8 + 8;
+        usable_size = size - size % 8 + 8; // Smallest multiple of 8 >= size
     }
     size_t flags = chunk->size % 8;
     size_t old_size = chunk->size - flags;
-    size_t new_size = usable_size + 8;
-    if (old_size - new_size < 32) {
+    size_t new_size = usable_size + CHUNK_HEADER_SIZE - sizeof(void *);
+
+    // Stop if remainder chunk would be smaller than the min free chunk size
+    if (old_size - new_size < sizeof(t_chunk)) {
         return (chunk);
     }
 

@@ -8,8 +8,8 @@
 #define MAX_SMALL_SIZE 512
 
 #define SEGMENT_HEADER_SIZE 24
-#define CHUNK_HEADER_SIZE 16
-#define BIG_CHUNK_HEADER_SIZE 24
+#define CHUNK_HEADER_SIZE 24
+#define BIG_CHUNK_HEADER_SIZE 32
 
 /**
  * Reimplementation of a dynamic memory allocator.
@@ -73,6 +73,7 @@
 
 typedef struct s_chunk {
     size_t          prev_size;
+    size_t          user_size;
     size_t          size;
     struct s_chunk *next_free_chunk;
     struct s_chunk *prev_free_chunk;
@@ -104,9 +105,10 @@ typedef struct s_segment {
  */
 
 typedef struct s_big_chunk {
-    struct s_big_chunk    *next;
-    struct s_big_chunk    *prev;
-    size_t                size;
+    struct s_big_chunk      *next;
+    struct s_big_chunk      *prev;
+    size_t                  size;
+    size_t                  user_size;
 }   t_big_chunk;
 
 /**
