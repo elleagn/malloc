@@ -12,6 +12,7 @@ t_big_chunk *init_big_chunk(size_t size) {
         chunk->next = NULL;
         chunk->prev = NULL;
         chunk->size = size + 24;
+        chunk->user_size = size;
     }
 
     return (chunk);

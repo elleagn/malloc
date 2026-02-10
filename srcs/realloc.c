@@ -50,7 +50,7 @@ t_chunk *try_in_place(t_chunk *chunk, size_t size) {
 
 
     // Check if we will go past the heap
-    if ((uintptr_t)chunk + 16 + size <
+    if ((uintptr_t)chunk + CHUNK_HEADER_SIZE + size <
         (uintptr_t)heap + heap->size) {
         try_expand_chunk(chunk, &heap->bin, size);
     }
@@ -77,7 +77,7 @@ void *realloc(void *ptr, size_t size) {
     }
 
     t_chunk   *new_chunk = NULL;
-    t_chunk   *chunk = (t_chunk *)((uintptr_t)ptr - 16);
+    t_chunk   *chunk = (t_chunk *)((uintptr_t)ptr - CHUNK_HEADER_SIZE);
 
      if (belong_to_same_heap(size, get_chunk_size(chunk))) {
         new_chunk = try_in_place(chunk, size);
@@ -85,7 +85,8 @@ void *realloc(void *ptr, size_t size) {
 
     void  *result = NULL;
     if (new_chunk != NULL) {
-        return ((void *)((uintptr_t)new_chunk + 16));
+        new_chunk->user_size = size;
+        return ((void *)((uintptr_t)new_chunk + CHUNK_HEADER_SIZE));
     } else {
         result = malloc(size);
         ft_memmove(result, ptr, chunk->size - CHUNK_HEADER_SIZE + sizeof(void *));

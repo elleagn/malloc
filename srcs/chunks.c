@@ -125,6 +125,7 @@ t_chunk *get_small_chunk(size_t size) {
 
     cleanup_empty_segments(heap);
     chunk = split_chunk(chunk, size, &heap->bin);
+    chunk->user_size = size;
     return (chunk);
 }
 
