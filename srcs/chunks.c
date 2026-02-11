@@ -91,11 +91,12 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     t_chunk *remainder_chunk =
         (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
     remainder_chunk->size = remainder_size;
-    size_t *end_tag = (size_t *)((uintptr_t)remainder_chunk +
+    remainder_chunk->user_size = remainder_chunk->size;
+    t_chunk *next_chunk = (t_chunk *)((uintptr_t)remainder_chunk +
                                  remainder_chunk->size - PREV_INUSE);
-    *end_tag = remainder_chunk->size;
+    next_chunk->prev_size = remainder_chunk->size;
+    next_chunk->size = next_chunk->size - next_chunk->size % 8;
     add_chunk(remainder_chunk, bin);
-
     return (chunk);
 }
 

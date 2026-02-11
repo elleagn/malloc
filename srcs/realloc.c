@@ -9,6 +9,9 @@
  * @return The PREV_INUSE flag of the next chunk
  */
 int is_in_use(t_chunk *chunk) {
+    if (chunk->user_size == 0) {
+        return (0);
+    }
     t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
     int      flag = next_chunk->size % 8;
     return (flag);
@@ -25,7 +28,7 @@ int is_in_use(t_chunk *chunk) {
 
 void try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
     t_chunk *current_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
-    while (!is_in_use(current_chunk) && size > chunk->size) {
+    while (current_chunk->user_size != 0 && !is_in_use(current_chunk) && size > chunk->size) {
         coalesce_chunk(current_chunk, bin);
         current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
     }
@@ -50,14 +53,12 @@ t_chunk *try_in_place(t_chunk *chunk, size_t size) {
 
 
     // Check if we will go past the heap
-    if ((uintptr_t)chunk + CHUNK_HEADER_SIZE + size <
-        (uintptr_t)heap + heap->size) {
-        try_expand_chunk(chunk, &heap->bin, size);
-    }
-    if (size < get_chunk_size(chunk) - sizeof(size_t)) {
+
+    try_expand_chunk(chunk, &heap->bin, size);
+    if (size < get_chunk_size(chunk) - CHUNK_HEADER_SIZE + sizeof(size_t)) {
         chunk = split_chunk(chunk, size, &heap->bin);
     }
-    if (get_chunk_size(chunk) - sizeof(size_t) >= size) {
+    if (get_chunk_size(chunk) - CHUNK_HEADER_SIZE + sizeof(size_t) >= size) {
         return (chunk);
     }
     return (NULL);
@@ -75,6 +76,9 @@ void *realloc(void *ptr, size_t size) {
         free(ptr);
         return (NULL);
     }
+    ft_printf("1\n");
+    // print_heap();
+    ft_printf("\n");
 
     t_chunk   *new_chunk = NULL;
     t_chunk   *chunk = (t_chunk *)((uintptr_t)ptr - CHUNK_HEADER_SIZE);
@@ -83,14 +87,27 @@ void *realloc(void *ptr, size_t size) {
         new_chunk = try_in_place(chunk, size);
     }
 
+    ft_printf("2\n");
+    // print_heap();
+    ft_printf("\n");
+
     void  *result = NULL;
     if (new_chunk != NULL) {
         new_chunk->user_size = size;
         return ((void *)((uintptr_t)new_chunk + CHUNK_HEADER_SIZE));
     } else {
         result = malloc(size);
-        ft_memmove(result, ptr, chunk->size - CHUNK_HEADER_SIZE + sizeof(void *));
+        ft_printf("3\n");
+        // print_heap();
+        ft_printf("\n");
+        ft_memmove(result, ptr, chunk->user_size < size ? chunk->user_size : size);
+        ft_printf("4\n");
+        // print_heap();
+        ft_printf("\n");
         free(ptr);
+        ft_printf("5\n");
+        // print_heap();
+        ft_printf("\n");
     }
     return (result);
 }

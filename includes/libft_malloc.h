@@ -26,7 +26,7 @@
 
 /**
  * Chunks of memory are delimited by a 'boundary tag' (ie the size of free chunks
- * is stored bprint_heap();oth at the beginning and at the end of each chunk). The last 3 bytes
+ * is stored both at the beginning and at the end of each chunk). The last 3 bytes
  * are used as flags (to know if previous chunk was in use).
  *
  * Allocated chunks look like this:
@@ -58,7 +58,7 @@
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Back pointer to previous chunk in list            |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |     print_heap();        Unused space (may be 0 bytes long)                .
+ *	    |             Unused space (may be 0 bytes long)                .
  *	    .                                                               .
  *	    .                                                               |
  *  nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

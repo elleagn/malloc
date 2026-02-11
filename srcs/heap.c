@@ -26,7 +26,7 @@ t_segment *initialize_segment(size_t size) {
     // Calculate the smallest multiple of page size that can contain 100
     // allocations + the header
     size_t page_size = sysconf(_SC_PAGESIZE);
-    size_t segment_min_size = 100 * (size + CHUNK_HEADER_SIZE) + SEGMENT_HEADER_SIZE;
+    size_t segment_min_size = 101 * (size + CHUNK_HEADER_SIZE) + SEGMENT_HEADER_SIZE;
     size_t segment_size = (segment_min_size / page_size + 1) * page_size;
 
     t_segment *segment = mmap(NULL, segment_size, PROT_READ | PROT_WRITE,
@@ -39,16 +39,18 @@ t_segment *initialize_segment(size_t size) {
     t_chunk  *chunk = (t_chunk *)(ptr_value + SEGMENT_HEADER_SIZE);
     segment->bin = chunk;
     chunk->prev_size = 0;
+    chunk->user_size = 1;
     chunk->size =
-        segment_size - SEGMENT_HEADER_SIZE - 8 + PREV_INUSE; // -8 for end tag
+        segment_size - SEGMENT_HEADER_SIZE - CHUNK_HEADER_SIZE + PREV_INUSE; // -8 for end tag
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
 
     // Put prev_size a the end so the algorithms work for the last chunk
     ptr_value = (uintptr_t)chunk;
-    size_t *end_tag = (size_t *)(ptr_value + chunk->size - PREV_INUSE);
-    (void)end_tag;
-    *end_tag = chunk->size;
+    t_chunk *last_chunk = (t_chunk *)(ptr_value + chunk->size - PREV_INUSE);
+    last_chunk->prev_size = chunk->size;
+    last_chunk->user_size = 0;
+    last_chunk->size = 0;
 
     return (segment);
 }
