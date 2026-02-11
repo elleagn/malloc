@@ -43,7 +43,7 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
     // Looking for a chunk that can contain size (usable_size = chunk->size
     // - size of header + previous_size of next_chunk >= size)
     while (current_chunk != NULL) {
-        if (size - CHUNK_HEADER_SIZE + sizeof(void *) <= current_chunk->size) {
+        if (size + CHUNK_HEADER_SIZE - sizeof(void *) <= current_chunk->size) {
             remove_chunk(current_chunk, bin);
             return (current_chunk);
         }

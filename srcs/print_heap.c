@@ -44,14 +44,14 @@ void print_heap() {
 
     size_t     total_size = 0;
     t_segment *heap = arena.tiny_heap;
-    ft_printf("TINY : %p\n", (uintptr_t)heap);
     while (heap) {
+        ft_printf("TINY : %p\n", (uintptr_t)heap);
         print_chunks(heap, &total_size);
         heap = heap->next;
     }
     heap = arena.small_heap;
-    ft_printf("SMALL : %p\n", (uintptr_t)heap);
     while (heap) {
+        ft_printf("SMALL : %p\n", (uintptr_t)heap);
         print_chunks(heap, &total_size);
         heap = heap->next;
     }

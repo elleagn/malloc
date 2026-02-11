@@ -1,5 +1,6 @@
 #include "libft_malloc.h"
 #include "unistd.h"
+#include "libft.h"
 #include <stdint.h>
 #include <sys/mman.h>
 
@@ -26,8 +27,9 @@ t_segment *initialize_segment(size_t size) {
     // Calculate the smallest multiple of page size that can contain 100
     // allocations + the header
     size_t page_size = sysconf(_SC_PAGESIZE);
-    size_t segment_min_size = 101 * (size + CHUNK_HEADER_SIZE) + SEGMENT_HEADER_SIZE;
+    size_t segment_min_size = 100 * (size + CHUNK_HEADER_SIZE - 8) + SEGMENT_HEADER_SIZE + CHUNK_HEADER_SIZE;
     size_t segment_size = (segment_min_size / page_size + 1) * page_size;
+    ft_printf("page_size: %u, segment_min_size: %u, segment_size: %u\n", page_size, segment_min_size, segment_size);
 
     t_segment *segment = mmap(NULL, segment_size, PROT_READ | PROT_WRITE,
                               MAP_PRIVATE | MAP_ANON, -1, 0);
