@@ -1,12 +1,13 @@
 #include "libft_malloc.h"
 #include <stdint.h>
+#include <sys/mman.h>
 
 t_segment *find_right_segment(t_chunk *chunk) {
     t_segment *segment = arena.tiny_heap;
     uintptr_t  chunk_address = (uintptr_t)chunk;
     uintptr_t  segment_address;
 
-    if (chunk->size - CHUNK_HEADER_SIZE + sizeof(void *) > MAX_TINY_SIZE) {
+    if (chunk->user_size > MAX_TINY_SIZE) {
         segment = arena.small_heap;
     }
 
@@ -30,10 +31,10 @@ void free(void *ptr) {
     // Retrieve the size of the allocated space, stored right before the pointer
     // address
     uintptr_t address = (uintptr_t)ptr;
-    size_t    size = *(size_t *)(address - sizeof(size_t));
+    size_t    user_size = *(size_t *)(address - 2 * sizeof(size_t));
 
     // In cas of big chunk, just ummap the address and remove it from the list
-    if (size - CHUNK_HEADER_SIZE + sizeof(void *) > MAX_SMALL_SIZE) {
+    if (user_size > MAX_SMALL_SIZE) {
         t_big_chunk *chunk = (t_big_chunk *)(address - BIG_CHUNK_HEADER_SIZE);
         remove_big_chunk(chunk);
         return;
@@ -47,6 +48,13 @@ void free(void *ptr) {
     // Put back the end boundary tag (ie prev size of the next chunk) + update
     // the next chunk's size end flag (because the previous bloc is free)
 
+    int         heap = chunk->user_size > MAX_TINY_SIZE;
+    t_segment *segment = find_right_segment(chunk);
+    segment->occupied_bins -= 1;
+    if (segment->occupied_bins == 0) {
+        remove_segment(segment, heap == 0 ? &arena.tiny_heap : &arena.small_heap);
+        return ;
+    }
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
     next_chunk->prev_size = chunk->size;
@@ -57,6 +65,5 @@ void free(void *ptr) {
     // Find the segment with the right address range for the chunk and insert it
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
-    t_segment *segment = find_right_segment(chunk);
     add_chunk(chunk, &segment->bin);
 }

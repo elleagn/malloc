@@ -46,9 +46,13 @@ int main(void) {
     void *ptr = malloc(10);
     (void)ptr;
     print_heap();
-    ft_printf("\n2 heaps\n");
-    for (int i = 0; i <= 160; i++) {
-        malloc(50);
+
+    ft_printf("\n2 HEAPS\n");
+    int *ptrs[120];
+    for (int i = 0; i <= 120; i++) {
+       ptrs[i] = malloc(50);
     }
     print_heap();
+
+
 }

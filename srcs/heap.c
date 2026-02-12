@@ -22,6 +22,19 @@ void cleanup_empty_segments(t_segment *heap) {
     }
 }
 
+void remove_segment(t_segment *segment, t_segment **heap) {
+    if (segment == *heap) {
+        *heap = segment->next;
+    } else {
+        t_segment *current_segment = *heap;
+        while (current_segment != NULL && segment != current_segment) {
+            current_segment = current_segment->next;
+        }
+        current_segment->next = segment->next;
+    }
+    munmap(segment, segment->size);
+}
+
 t_segment *initialize_segment(size_t size) {
 
     // Calculate the smallest multiple of page size that can contain 100
@@ -35,6 +48,7 @@ t_segment *initialize_segment(size_t size) {
                               MAP_PRIVATE | MAP_ANON, -1, 0);
     segment->size = segment_size;
     segment->next = NULL;
+    segment->occupied_bins = 0;
 
     // Create a chunk from the empty space
     uintptr_t ptr_value = (uintptr_t)segment;

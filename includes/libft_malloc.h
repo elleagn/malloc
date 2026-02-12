@@ -7,7 +7,7 @@
 #define MAX_TINY_SIZE  64
 #define MAX_SMALL_SIZE 512
 
-#define SEGMENT_HEADER_SIZE 24
+#define SEGMENT_HEADER_SIZE 32
 #define CHUNK_HEADER_SIZE 24
 #define BIG_CHUNK_HEADER_SIZE 32
 
@@ -90,6 +90,7 @@ typedef struct s_chunk {
 
 typedef struct s_segment {
     size_t              size;
+    size_t              occupied_bins;
     t_chunk             *bin;
     struct s_segment    *next;
 } t_segment;
@@ -107,8 +108,8 @@ typedef struct s_segment {
 typedef struct s_big_chunk {
     struct s_big_chunk      *next;
     struct s_big_chunk      *prev;
-    size_t                  size;
     size_t                  user_size;
+    size_t                  size;
 }   t_big_chunk;
 
 /**
@@ -150,12 +151,13 @@ void    add_chunk(t_chunk *chunk, t_chunk **bin);
  * @param bin the bin (doubly linked list of chunks) to remove the chunk from
  */
 void    remove_chunk(t_chunk *chunk, t_chunk **bin);
-void    coalesce_chunk(t_chunk *chunk, t_chunk **bin);
+t_chunk    *coalesce_chunk(t_chunk *chunk, t_chunk **bin);
 t_chunk   *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
 t_segment *find_right_segment(t_chunk *chunk);
 size_t  get_chunk_size(t_chunk *chunk);
 int     is_in_use(t_chunk *chunk);
 void cleanup_empty_segments(t_segment *heap);
+void remove_segment(t_segment *segment, t_segment **heap);
 
 t_big_chunk *init_big_chunk(size_t size);
 void        add_big_chunk(t_big_chunk *chunk);
