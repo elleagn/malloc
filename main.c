@@ -1,6 +1,9 @@
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 #include "libft/libft.h"
 #include "libft_malloc.h"
+
 #include <stdint.h>
 void print_heap();
 // __attribute((constructor)) void init_arena();
@@ -56,11 +59,24 @@ int main(void) {
     print_heap();
 
     ft_printf("\nFREE \n");
-    for (int i = 120; i >= 111; i--) {
-        ft_printf("%i\n", *ptrs[i]);
+    for (int i = 120; i >= 0; i--) {
         free(ptrs[i]);
     }
     print_heap();
 
+    ft_printf("\nCOALESCING\n");
+    void *ptr1 = malloc(64);
+    void *ptr2 = malloc(64);
+    (void)ptr1;
+    (void)ptr2;
+    print_heap();
+
+    srand(time(NULL));
+    int *ptrs1[100];
+    for (int i = 0; i < 100; i++) {
+       ptrs1[i] = malloc(rand() % 1000);
+       *ptrs1[i] = i;
+    }
+    print_heap();
 
 }

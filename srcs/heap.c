@@ -24,7 +24,7 @@ void cleanup_empty_segments(t_segment *heap) {
 
 void remove_segment(t_segment *segment, t_segment **heap) {
     if (segment == *heap) {
-        *heap = segment->next;
+        return ;
     } else {
         t_segment *current_segment = *heap;
         while (current_segment != NULL && segment != current_segment->next) {

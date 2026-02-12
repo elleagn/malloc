@@ -94,6 +94,8 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
         (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
     remainder_chunk->size = remainder_size;
     remainder_chunk->user_size = remainder_chunk->size;
+    remainder_chunk->next_free_chunk = NULL;
+    remainder_chunk->prev_free_chunk = NULL;
 
     next_chunk->prev_size = remainder_chunk->size;
     next_chunk->size = next_chunk->size - next_chunk->size % 8;
