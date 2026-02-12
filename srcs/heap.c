@@ -27,7 +27,7 @@ void remove_segment(t_segment *segment, t_segment **heap) {
         *heap = segment->next;
     } else {
         t_segment *current_segment = *heap;
-        while (current_segment != NULL && segment != current_segment) {
+        while (current_segment != NULL && segment != current_segment->next) {
             current_segment = current_segment->next;
         }
         current_segment->next = segment->next;

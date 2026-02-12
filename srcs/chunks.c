@@ -81,8 +81,10 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     size_t old_size = chunk->size - flags;
     size_t new_size = usable_size + CHUNK_HEADER_SIZE - sizeof(void *);
 
+        t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + old_size);
     // Stop if remainder chunk would be smaller than the min free chunk size
     if (old_size - new_size < sizeof(t_chunk)) {
+        next_chunk->size += 1;
         return (chunk);
     }
 
@@ -92,8 +94,7 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
         (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
     remainder_chunk->size = remainder_size;
     remainder_chunk->user_size = remainder_chunk->size;
-    t_chunk *next_chunk = (t_chunk *)((uintptr_t)remainder_chunk +
-                                 remainder_chunk->size - PREV_INUSE);
+
     next_chunk->prev_size = remainder_chunk->size;
     next_chunk->size = next_chunk->size - next_chunk->size % 8;
     add_chunk(remainder_chunk, bin);

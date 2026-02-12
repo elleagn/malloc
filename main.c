@@ -51,6 +51,14 @@ int main(void) {
     int *ptrs[120];
     for (int i = 0; i <= 120; i++) {
        ptrs[i] = malloc(50);
+       *ptrs[i] = i;
+    }
+    print_heap();
+
+    ft_printf("\nFREE \n");
+    for (int i = 120; i >= 111; i--) {
+        ft_printf("%i\n", *ptrs[i]);
+        free(ptrs[i]);
     }
     print_heap();
 
