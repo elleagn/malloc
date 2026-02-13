@@ -59,8 +59,9 @@ void free(void *ptr) {
     chunk->prev_free_chunk = NULL;
     next_chunk->prev_size = chunk->size;
     next_chunk->size = next_chunk->size - PREV_INUSE;
-    size_t *next_end_tag = (size_t *)(next_chunk_address + next_chunk->size);
-    *next_end_tag = next_chunk->size;
+    t_chunk *second_next_chunk = (t_chunk *)(next_chunk_address + next_chunk->size);
+    if (!is_in_use(second_next_chunk))
+        second_next_chunk->prev_size = next_chunk->size;
 
     // Find the segment with the right address range for the chunk and insert it
     chunk->next_free_chunk = NULL;

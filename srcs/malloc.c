@@ -5,6 +5,7 @@
 void *malloc(size_t size) {
 
     void *ptr = NULL;
+
     if (size <= MAX_SMALL_SIZE) {
         t_chunk *chunk = get_small_chunk(size);
         ptr = (void *)((uintptr_t)chunk + CHUNK_HEADER_SIZE);
