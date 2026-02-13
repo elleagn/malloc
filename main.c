@@ -92,4 +92,29 @@ int main() {
     ft_printf("%p\n", (uintptr_t)ptr - 24);
     assert(ptr == ptr1);
     ft_printf("✓ basic functionnality passed\n");
+
+    ft_printf("random malloc / free:\n");
+    srand(time(NULL));
+    int *ptrs1[100];
+    int r;
+    for (int i = 0; i < 100; i++) {
+       ptrs1[i] = malloc(rand() % 2000);
+        if (i != 0) {
+            r = rand() % i;
+            free(ptrs1[r]);
+            ptrs1[r] = malloc(rand() % 2000);
+        }
+
+       *ptrs1[i] = i;
+    }
+    show_alloc_mem();
+    for (int i = 0; i < 100; i++) {
+       free(ptrs1[i]);
+    }
+    show_alloc_mem();
+    ft_printf("\ncoalescing:\n");
+    free(ptr1);
+    for (int i = 0; i < 100; i++)
+        ptrs1[i] = malloc(MAX_TINY_SIZE);
+    show_alloc_mem();
 }

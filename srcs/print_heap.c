@@ -31,10 +31,10 @@ void print_chunks(t_segment *heap, size_t *size) {
                       chunk->size);
             *size += chunk->user_size;
         }
-        // else {
-        //     ft_printf("%p - %p : %u\n", (uintptr_t)chunk,
-        //               (uintptr_t)chunk + chunk->size, chunk->size);
-        // }
+        else {
+            ft_printf("%p - %p : %u\n", (uintptr_t)chunk,
+                      (uintptr_t)chunk + chunk->size, chunk->size);
+        }
         ptr_value += chunk->size - (chunk->size & 7);
         chunk = (t_chunk *)ptr_value;
     }
