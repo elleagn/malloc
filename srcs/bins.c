@@ -19,18 +19,10 @@ void remove_chunk(t_chunk *chunk, t_chunk **bin) {
 
 void add_chunk(t_chunk *chunk, t_chunk **bin) {
 
-    if (*bin == NULL) {
-        *bin = chunk;
-        return;
+    chunk->next_free_chunk = *bin;
+    chunk->prev_free_chunk = NULL;
+    if (*bin != NULL) {
+        (*bin)->prev_free_chunk = chunk;
     }
-
-    t_chunk *next = (*bin)->next_free_chunk;
-    t_chunk *prev = *bin;
-    if (next != NULL) {
-        next->prev_free_chunk = chunk;
-    }
-
-    chunk->prev_free_chunk = prev;
-    chunk->next_free_chunk = next;
-    prev->next_free_chunk = chunk;
+    *bin = chunk;
 }

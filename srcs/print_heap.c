@@ -27,20 +27,22 @@ void print_chunks(t_segment *heap, size_t *size) {
     while (chunk->user_size != 0) {
         if (is_in_use(chunk)) {
             ft_printf("%p - %p : %u bytes %u\n", (uintptr_t)chunk,
-                   (uintptr_t)chunk + chunk->size, chunk->user_size, chunk->size);
+                      (uintptr_t)chunk + chunk->size, chunk->user_size,
+                      chunk->size);
             *size += chunk->user_size;
-        } else {
-            ft_printf("%p - %p : %u\n", (uintptr_t)chunk,
-                   (uintptr_t)chunk + chunk->size, chunk->size);
         }
+        // else {
+        //     ft_printf("%p - %p : %u\n", (uintptr_t)chunk,
+        //               (uintptr_t)chunk + chunk->size, chunk->size);
+        // }
         ptr_value += chunk->size - (chunk->size & 7);
         chunk = (t_chunk *)ptr_value;
-
     }
-    ft_printf("last: %p user_size %u size %u\n", chunk, chunk->user_size, chunk->size);
+    // ft_printf("last: %p user_size %u size %u\n", chunk, chunk->user_size,
+    //           chunk->size);
 }
 
-void print_heap() {
+void show_alloc_mem() {
 
     size_t     total_size = 0;
     t_segment *heap = arena.tiny_heap;
@@ -60,7 +62,7 @@ void print_heap() {
     while (big_heap) {
         ft_printf("LARGE : %p\n", (uintptr_t)big_heap);
         ft_printf("%p - %p : %u bytes\n", (uintptr_t)big_heap,
-                   (uintptr_t)big_heap + big_heap->size, big_heap->user_size);
+                  (uintptr_t)big_heap + big_heap->size, big_heap->user_size);
         total_size += big_heap->user_size;
         big_heap = big_heap->next;
     }

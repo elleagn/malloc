@@ -1,11 +1,12 @@
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <time.h>
 #include "libft/libft.h"
 #include "libft_malloc.h"
 
 #include <stdint.h>
-void print_heap();
+void show_alloc_mem();
 // __attribute((constructor)) void init_arena();
 // __attribute((destructor)) void free_arena();
 
@@ -41,42 +42,54 @@ void print_heap();
 //     // print_heap();
 // }
 
-int main(void) {
-    ft_printf("BEGINNING:\n");
-    print_heap();
+// int main(void) {
+//     ft_printf("BEGINNING:\n");
+//     show_alloc_mem();
 
-    ft_printf("\nTINY MALLOC (10)\n");
-    void *ptr = malloc(10);
-    (void)ptr;
-    print_heap();
+//     ft_printf("\nTINY MALLOC (10)\n");
+//     void *ptr = malloc(10);
+//     (void)ptr;
+//     show_alloc_mem();
 
-    ft_printf("\n2 HEAPS\n");
-    int *ptrs[120];
-    for (int i = 0; i <= 120; i++) {
-       ptrs[i] = malloc(50);
-       *ptrs[i] = i;
-    }
-    print_heap();
+//     ft_printf("\n2 HEAPS\n");
+//     int *ptrs[120];
+//     for (int i = 0; i <= 120; i++) {
+//        ptrs[i] = malloc(50);
+//        *ptrs[i] = i;
+//     }
+//     show_alloc_mem();
 
-    ft_printf("\nFREE \n");
-    for (int i = 120; i >= 0; i--) {
-        free(ptrs[i]);
-    }
-    print_heap();
+//     ft_printf("\nFREE \n");
+//     for (int i = 120; i >= 0; i--) {
+//         free(ptrs[i]);
+//     }
+//     show_alloc_mem();
 
-    ft_printf("\nCOALESCING\n");
-    void *ptr1 = malloc(64);
-    void *ptr2 = malloc(64);
-    (void)ptr1;
-    (void)ptr2;
-    print_heap();
+//     ft_printf("\nCOALESCING\n");
+//     void *ptr1 = malloc(64);
+//     void *ptr2 = malloc(64);
+//     (void)ptr1;
+//     (void)ptr2;
+//     show_alloc_mem();
 
-    srand(time(NULL));
-    int *ptrs1[100];
-    for (int i = 0; i < 100; i++) {
-       ptrs1[i] = malloc(rand() % 1000);
-       *ptrs1[i] = i;
-    }
-    print_heap();
+//     srand(time(NULL));
+//     int *ptrs1[100];
+//     for (int i = 0; i < 100; i++) {
+//        ptrs1[i] = malloc(rand() % 1000);
+//        *ptrs1[i] = i;
+//     }
+//     show_alloc_mem();
 
+// }
+
+
+int main() {
+    ft_printf("malloc / free\n");
+    char *ptr = malloc(50);
+    free(ptr);
+    char *ptr1 = malloc(50);
+    show_alloc_mem();
+    ft_printf("%p\n", (uintptr_t)ptr - 24);
+    assert(ptr == ptr1);
+    ft_printf("✓ basic functionnality passed\n");
 }

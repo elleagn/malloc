@@ -44,14 +44,23 @@ void free(void *ptr) {
     uintptr_t chunk_address = (uintptr_t)chunk;
     t_chunk *next_chunk = (t_chunk *)(chunk_address + get_chunk_size(chunk));
     uintptr_t next_chunk_address = (uintptr_t)next_chunk;
+    if (next_chunk->size % 8 == 0) {
+        chunk = NULL;
+        chunk->size = 0;
+        return ;
+    }
 
     // Put back the end boundary tag (ie prev size of the next chunk) + update
     // the next chunk's size end flag (because the previous bloc is free)
 
     int         heap = chunk->user_size > MAX_TINY_SIZE;
     t_segment *segment = find_right_segment(chunk);
+    if (segment == NULL) {
+        segment->occupied_bins = 0;
+        return ;
+    }
     segment->occupied_bins -= 1;
-    if (segment->occupied_bins == 0) {
+    if (segment->occupied_bins == 0 && segment != arena.small_heap && segment != arena.tiny_heap) {
         remove_segment(segment, heap == 0 ? &arena.tiny_heap : &arena.small_heap);
         return ;
     }

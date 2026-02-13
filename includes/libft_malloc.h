@@ -4,30 +4,30 @@
 #include <stddef.h>
 
 #define PREV_INUSE     1
-#define MAX_TINY_SIZE  64
-#define MAX_SMALL_SIZE 512
+#define MAX_TINY_SIZE  128
+#define MAX_SMALL_SIZE 1024
 
-#define SEGMENT_HEADER_SIZE 32
-#define CHUNK_HEADER_SIZE 24
+#define SEGMENT_HEADER_SIZE   32
+#define CHUNK_HEADER_SIZE     24
 #define BIG_CHUNK_HEADER_SIZE 32
 
 /**
  * Reimplementation of a dynamic memory allocator.
- * The heap and chunk structure and their documentation are inspired by glibc malloc
- * (https://github.com/lattera/glibc/blob/master/malloc/malloc.c).
+ * The heap and chunk structure and their documentation are inspired by glibc
+ * malloc (https://github.com/lattera/glibc/blob/master/malloc/malloc.c).
  *
  * Alignment:
  *  - Allocated memory is always 8 bytes aligned
  */
 
- /**
-  * HEAP(S) STRUCTURE
-  */
+/**
+ * HEAP(S) STRUCTURE
+ */
 
 /**
- * Chunks of memory are delimited by a 'boundary tag' (ie the size of free chunks
- * is stored both at the beginning and at the end of each chunk). The last 3 bytes
- * are used as flags (to know if previous chunk was in use).
+ * Chunks of memory are delimited by a 'boundary tag' (ie the size of free
+ * chunks is stored both at the beginning and at the end of each chunk). The
+ * last 3 bytes are used as flags (to know if previous chunk was in use).
  *
  * Allocated chunks look like this:
  *
@@ -39,8 +39,9 @@
  *	    |             User data                                         .
  *	    .                                                               .
  *	    .                                                               |
- *   nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |             (size of chunk, but used for application data)    |
+ *   nextchunk->
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ |    (size
+ * of chunk, but used for application data)    |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Size of next chunk, in bytes                |0|0|1|
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -61,8 +62,9 @@
  *	    |             Unused space (may be 0 bytes long)                .
  *	    .                                                               .
  *	    .                                                               |
- *  nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      |             Size of chunk, in bytes                           |
+ *  nextchunk->
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ |    Size
+ * of chunk, in bytes                           |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Size of next chunk, in bytes                |0|0|0|
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -89,10 +91,10 @@ typedef struct s_chunk {
 */
 
 typedef struct s_segment {
-    size_t              size;
-    size_t              occupied_bins;
-    t_chunk             *bin;
-    struct s_segment    *next;
+    size_t            size;
+    size_t            occupied_bins;
+    t_chunk          *bin;
+    struct s_segment *next;
 } t_segment;
 
 /**
@@ -106,11 +108,11 @@ typedef struct s_segment {
  */
 
 typedef struct s_big_chunk {
-    struct s_big_chunk      *next;
-    struct s_big_chunk      *prev;
-    size_t                  user_size;
-    size_t                  size;
-}   t_big_chunk;
+    struct s_big_chunk *next;
+    struct s_big_chunk *prev;
+    size_t              user_size;
+    size_t              size;
+} t_big_chunk;
 
 /**
  * The arena stores the addresses of the different heaps.
@@ -122,13 +124,12 @@ typedef struct s_big_chunk {
  */
 
 typedef struct s_arena {
-    t_segment *tiny_heap;
-    t_segment *small_heap;
+    t_segment   *tiny_heap;
+    t_segment   *small_heap;
     t_big_chunk *big_heap;
 } t_arena;
 
 extern t_arena arena;
-
 
 /**
  * @brief Search for the first fitting chunk in the heap with a usable size
@@ -143,34 +144,34 @@ t_chunk *get_small_chunk(size_t size);
  * @param chunk the chunk to be added
  * @param bin the bin (doubly linked list of chunks) to add the chunk to
  */
-void    add_chunk(t_chunk *chunk, t_chunk **bin);
+void add_chunk(t_chunk *chunk, t_chunk **bin);
 
 /**
  * @brief Remove chunk from the bin.
  * @param chunk the chunk to be removed
  * @param bin the bin (doubly linked list of chunks) to remove the chunk from
  */
-void    remove_chunk(t_chunk *chunk, t_chunk **bin);
-t_chunk    *coalesce_chunk(t_chunk *chunk, t_chunk **bin);
+void       remove_chunk(t_chunk *chunk, t_chunk **bin);
+t_chunk   *coalesce_chunk(t_chunk *chunk, t_chunk **bin);
 t_chunk   *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
 t_segment *find_right_segment(t_chunk *chunk);
-size_t  get_chunk_size(t_chunk *chunk);
-int     is_in_use(t_chunk *chunk);
-void cleanup_empty_segments(t_segment *heap);
-void remove_segment(t_segment *segment, t_segment **heap);
+size_t     get_chunk_size(t_chunk *chunk);
+int        is_in_use(t_chunk *chunk);
+void       cleanup_empty_segments(t_segment *heap);
+void       remove_segment(t_segment *segment, t_segment **heap);
 
 t_big_chunk *init_big_chunk(size_t size);
-void        add_big_chunk(t_big_chunk *chunk);
-void        remove_big_chunk(t_big_chunk *chunk);
+void         add_big_chunk(t_big_chunk *chunk);
+void         remove_big_chunk(t_big_chunk *chunk);
 
 /**
  * @brief Request memory for the segment with mmap + fills the header
  * @return The segement, ready to be used
  */
 t_segment *initialize_segment(size_t size);
-void   *malloc(size_t size);
-void    free(void *ptr);
-void *realloc(void *ptr, size_t size);
-void print_heap();
+void      *malloc(size_t size);
+void       free(void *ptr);
+void      *realloc(void *ptr, size_t size);
+void       show_alloc_mem();
 
 #endif
