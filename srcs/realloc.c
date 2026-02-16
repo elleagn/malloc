@@ -17,6 +17,18 @@ int is_in_use(t_chunk *chunk) {
     return (flag);
 }
 
+void fuse_next_chunk(t_chunk *chunk, t_chunk **bin) {
+    t_chunk *next_chunk =  (t_chunk * )((uintptr_t)chunk + get_chunk_size(chunk));
+    int in_use = next_chunk-> size % 8;
+
+    remove_chunk(next_chunk, bin);
+    chunk->size += get_chunk_size(next_chunk);
+    if (in_use == 0) {
+        next_chunk = chunk + get_chunk_size(chunk);
+        next_chunk->prev_size = chunk->size;
+    }
+}
+
 /**
  * @brief Fuses the chunks next to the given chunks until either a used one is
  * found or the chunk size is bigger than size.
@@ -29,7 +41,7 @@ int is_in_use(t_chunk *chunk) {
 void try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
     t_chunk *current_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
     while (current_chunk->user_size != 0 && !is_in_use(current_chunk) && size > chunk->size) {
-        coalesce_chunk(current_chunk, bin);
+        fuse_next_chunk(chunk, bin);
         current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
     }
 }
