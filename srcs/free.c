@@ -2,6 +2,13 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+/**
+ * @brief Find the segments containing the given chunk. If no segment is found,
+ * NULL is returned.
+ * @param chunk Pointer to the chunk of which we want to find the segment
+ * @return The segment that the chunks belong to, or NULL if there is no such
+ * segment
+ */
 t_segment *find_right_segment(t_chunk *chunk) {
     t_segment *segment = arena.tiny_heap;
     uintptr_t  chunk_address = (uintptr_t)chunk;
@@ -23,6 +30,62 @@ t_segment *find_right_segment(t_chunk *chunk) {
     return (NULL);
 }
 
+/**
+ * @brief Takes a used chunk as argument and makes it a valid free chunk
+ * @param chunk The chunk to free
+ */
+void make_chunk_free(t_chunk *chunk) {
+
+    if (!is_in_use(chunk)) {
+        chunk = NULL;
+        chunk->size = 0;
+    }
+    chunk->next_free_chunk = NULL;
+    chunk->prev_free_chunk = NULL;
+
+    t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
+
+    next_chunk->prev_size = chunk->size;
+    next_chunk->size = next_chunk->size - PREV_INUSE;
+
+    t_chunk *second_next_chunk =
+        (t_chunk *)((uintptr_t)next_chunk + next_chunk->size);
+    if (!is_in_use(next_chunk)) {
+        second_next_chunk->prev_size = next_chunk->size;
+    }
+}
+
+/**
+ * @brief Finds the appriopriate segment to add the chunk to + unmaps it if
+ * empty. Otherwise add the chunk to the bin. Th chunk is considered empty.
+ * @param chunk The chunk to add
+ */
+void add_chunk_to_heap(t_chunk *chunk) {
+    int        heap = chunk->user_size > MAX_TINY_SIZE;
+    t_segment *segment = find_right_segment(chunk);
+    if (segment == NULL) {
+        segment->occupied_bins = 0;
+        return;
+    }
+
+    segment->occupied_bins -= 1;
+    if (segment->occupied_bins == 0 && segment != arena.small_heap &&
+        segment != arena.tiny_heap) {
+        remove_segment(segment,
+                       heap == 0 ? &arena.tiny_heap : &arena.small_heap);
+        return;
+    }
+
+    add_chunk(chunk, &segment->bin);
+}
+
+/**
+ * @brief Frees the memory space pointed to by ptr, which must have been
+ * returned by a previous call to malloc() or realloc().  Otherwise, or if
+ * free(ptr) has already been called before, undefined behavior occurs.  If ptr
+ * is NULL, no operation is performed.
+ * @param ptr The ptr to free
+ */
 void free(void *ptr) {
     if (ptr == NULL) {
         return;
@@ -40,40 +103,8 @@ void free(void *ptr) {
         return;
     }
 
-    t_chunk  *chunk = (t_chunk *)(address - CHUNK_HEADER_SIZE);
-    uintptr_t chunk_address = (uintptr_t)chunk;
-    t_chunk *next_chunk = (t_chunk *)(chunk_address + get_chunk_size(chunk));
-    uintptr_t next_chunk_address = (uintptr_t)next_chunk;
-    if (next_chunk->size % 8 == 0) {
-        chunk = NULL;
-        chunk->size = 0;
-        return ;
-    }
-
-    // Put back the end boundary tag (ie prev size of the next chunk) + update
-    // the next chunk's size end flag (because the previous bloc is free)
-
-    int         heap = chunk->user_size > MAX_TINY_SIZE;
-    t_segment *segment = find_right_segment(chunk);
-    if (segment == NULL) {
-        segment->occupied_bins = 0;
-        return ;
-    }
-    segment->occupied_bins -= 1;
-    if (segment->occupied_bins == 0 && segment != arena.small_heap && segment != arena.tiny_heap) {
-        remove_segment(segment, heap == 0 ? &arena.tiny_heap : &arena.small_heap);
-        return ;
-    }
-    chunk->next_free_chunk = NULL;
-    chunk->prev_free_chunk = NULL;
-    next_chunk->prev_size = chunk->size;
-    next_chunk->size = next_chunk->size - PREV_INUSE;
-    t_chunk *second_next_chunk = (t_chunk *)(next_chunk_address + next_chunk->size);
-    if (!is_in_use(next_chunk))
-        second_next_chunk->prev_size = next_chunk->size;
-
-    // Find the segment with the right address range for the chunk and insert it
-    chunk->next_free_chunk = NULL;
-    chunk->prev_free_chunk = NULL;
-    add_chunk(chunk, &segment->bin);
+    // Format chunk + adds it to the right segment
+    t_chunk *chunk = (t_chunk *)(address - CHUNK_HEADER_SIZE);
+    make_chunk_free(chunk);
+    add_chunk_to_heap(chunk);
 }
