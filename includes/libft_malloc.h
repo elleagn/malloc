@@ -131,12 +131,7 @@ typedef struct s_arena {
 
 extern t_arena arena;
 
-/**
- * @brief Search for the first fitting chunk in the heap with a usable size
- * >= size, and resize it if necessary
- * @param size The size of thmalloce memory requested
- * @return A chunk of the minimal size required to contain data of size size
- */
+
 t_chunk *get_small_chunk(size_t size);
 
 /**

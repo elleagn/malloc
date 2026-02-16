@@ -9,11 +9,13 @@
  * @return first chunk big enough to contain the data
  *
  * @details The structure of a free chunk being as follow :
- *  chunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  chunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Size of previous chunk, if unallocated (P clear)  |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      |             Size asked for by the user                        |
+ *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *      |             Size of chunk, in bytes                     |0|0|P|
- *     ptr-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  ptr-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Forward pointer to next chunk in list             |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Back pointer to previous chunk in list            |
@@ -21,27 +23,28 @@
  *	    |             Unused space (may be 0 bytes long)                .
  *	    .                                                               .
  *	    .                                                               |
- *  nextchunk->
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ |    Size
- * of chunk, in bytes                           |
+ *  nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      |    Size of chunk, in bytes                                    |
+ *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      |             Size asked for by the user                        |
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *	    |             Size of next chunk, in bytes                |0|0|0|
  *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *
- * The minimum usable size is 16 because we must reserve space for the pointers
+ * The minimum usable size is 24 because we must reserve space for the pointers
  * to the next and previous chunk if the chunk is freed + we overwrite the size
  * of chunk of the next byte.
  */
 t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
     t_chunk *current_chunk = *bin;
-    if (size < 16) {
-        size = 16;
+    if (size < 24) {
+        size = 24;
     }
     t_chunk *previous_chunk = NULL;
 
     // Looking for a chunk that can contain size (usable_size = chunk->size
-    // - size of header + previous_size of next_chunk >= size)
+    // - size of header + previous_size of next_chunk, ; must be >= size)
     while (current_chunk != NULL) {
         if (size + CHUNK_HEADER_SIZE - sizeof(void *) <= current_chunk->size) {
             remove_chunk(current_chunk, bin);
@@ -62,8 +65,30 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 }
 
 /**
+ * @brief Creates a properly formated empty chunk at the given address
+ * @param remainder_chunk Address where to create the chunk
+ * @param size Size of the newly created chunk
+ */
+void init_remainder_chunk(t_chunk *remainder_chunk, size_t size, t_chunk **bin) {
+
+    t_chunk *next_chunk = (t_chunk *)((uintptr_t)remainder_chunk + size);
+    if (size >= 24) {
+        remainder_chunk->size = size + PREV_INUSE;
+        remainder_chunk->user_size = remainder_chunk->size;
+        remainder_chunk->next_free_chunk = NULL;
+        remainder_chunk->prev_free_chunk = NULL;
+        next_chunk->prev_size = remainder_chunk->size;
+        next_chunk->size = next_chunk->size - next_chunk->size % 8;
+        add_chunk(remainder_chunk, bin);
+    } else {
+        next_chunk->size += 1;
+    }
+}
+
+/**
  * @brief Resizes the chunk to the minimum possible size that can store an
- * object of size size. The remainder chunk is added to the bin.
+ * object of size size. The remainder chunk is added to the bin, and the resized
+ * chunk is considered as used.
  * @param chunk the chunk to resize
  * @param size the size of the data the new chunk must be able to fit
  * @param bin the bin where to put the remainder chunk
@@ -81,7 +106,7 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     size_t old_size = chunk->size - flags;
     size_t new_size = usable_size + CHUNK_HEADER_SIZE - sizeof(void *);
 
-        t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + old_size);
+    t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + old_size);
     // Stop if remainder chunk would be smaller than the min free chunk size
     if (old_size - new_size < sizeof(t_chunk)) {
         next_chunk->size += 1;
@@ -89,20 +114,18 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     }
 
     chunk->size = new_size + flags;
-    size_t   remainder_size = old_size - new_size + PREV_INUSE;
     t_chunk *remainder_chunk =
         (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
-    remainder_chunk->size = remainder_size;
-    remainder_chunk->user_size = remainder_chunk->size;
-    remainder_chunk->next_free_chunk = NULL;
-    remainder_chunk->prev_free_chunk = NULL;
-
-    next_chunk->prev_size = remainder_chunk->size;
-    next_chunk->size = next_chunk->size - next_chunk->size % 8;
-    add_chunk(remainder_chunk, bin);
+    init_remainder_chunk(remainder_chunk, old_size - new_size, bin);
     return (chunk);
 }
 
+/**
+ * @brief Search for the first fitting chunk in the heap with a usable size
+ * >= size, and resize it if necessary
+ * @param size The size of thmalloce memory requested
+ * @return A chunk of the minimal size required to contain data of size size
+ */
 t_chunk *get_small_chunk(size_t size) {
 
     t_segment *heap;
