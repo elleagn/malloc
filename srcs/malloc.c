@@ -12,17 +12,17 @@
 static t_big_chunk *init_big_chunk(size_t size) {
 
     // Round to the closest multiple of 8
-    size = size - size % 8 + 8;
+    size_t true_size = size - size % 8 + 8;
 
     // Map a region of the desired size + space for the header
     t_big_chunk *chunk =
-        mmap(NULL, size + BIG_CHUNK_HEADER_SIZE, PROT_READ | PROT_WRITE,
+        mmap(NULL, true_size + BIG_CHUNK_HEADER_SIZE, PROT_READ | PROT_WRITE,
              MAP_PRIVATE | MAP_ANON, -1, 0);
 
     if (chunk != NULL) {
         chunk->next = NULL;
         chunk->prev = NULL;
-        chunk->size = size + 24;
+        chunk->size = true_size + BIG_CHUNK_HEADER_SIZE;
         chunk->user_size = size;
     }
 
@@ -129,7 +129,7 @@ static t_chunk *get_small_chunk(size_t size) {
     }
 
     t_chunk *chunk = find_fitting_chunk(size, &heap->bin);
-
+    sanity_check(chunk);
     // Search through all the existing bins and create a new one if no chunk
     // fits
     while (chunk == NULL) {
@@ -138,10 +138,11 @@ static t_chunk *get_small_chunk(size_t size) {
         }
         heap = heap->next;
         chunk = find_fitting_chunk(size, &heap->bin);
+        sanity_check(chunk);
     }
 
     chunk = split_chunk(chunk, size, &heap->bin);
-    chunk->user_size = size;
+    sanity_check(chunk);
     return (chunk);
 }
 
@@ -159,6 +160,7 @@ void *malloc(size_t size) {
     }
     if (size <= MAX_SMALL_SIZE) {
         t_chunk *chunk = get_small_chunk(size);
+        sanity_check(chunk);
         ptr = (void *)((uintptr_t)chunk + CHUNK_HEADER_SIZE);
         t_segment *segment = find_right_segment(chunk);
         segment->occupied_bins += 1;

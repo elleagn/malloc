@@ -25,14 +25,13 @@ int is_in_use(t_chunk *chunk) {
  */
 static void fuse_next_chunk(t_chunk *chunk, t_chunk **bin) {
     t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
-    int      in_use = next_chunk->size % 8;
 
     remove_chunk(next_chunk, bin);
     chunk->size += get_chunk_size(next_chunk);
-    if (in_use == 0) {
-        next_chunk = chunk + get_chunk_size(chunk);
-        next_chunk->prev_size = chunk->size;
-    }
+
+    next_chunk =(t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
+    next_chunk->size += PREV_INUSE;
+
 }
 
 /**
@@ -113,7 +112,7 @@ void *realloc(void *ptr, size_t size) {
 
     t_chunk *new_chunk = NULL;
     t_chunk *chunk = (t_chunk *)((uintptr_t)ptr - CHUNK_HEADER_SIZE);
-
+    
     if (belong_to_same_heap(size, get_chunk_size(chunk))) {
         new_chunk = try_in_place(chunk, size);
     }

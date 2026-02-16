@@ -1,5 +1,6 @@
 #include "libft_malloc.h"
 #include <stdint.h>
+#include "libft.h"
 #include <sys/mman.h>
 
 
@@ -26,8 +27,8 @@ static void remove_big_chunk(t_big_chunk *chunk) {
 static void make_chunk_free(t_chunk *chunk) {
 
     if (!is_in_use(chunk)) {
-        chunk = NULL;
-        chunk->size = 0;
+        t_chunk *crash = NULL;
+        crash->size = 0;
     }
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;

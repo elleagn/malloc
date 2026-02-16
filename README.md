@@ -1,12 +1,11 @@
 # malloc
-This project is about implementing a dynamic memory allocation mechanism.
+A custom dynamic memory allocation library that reimplements `malloc`, `free`, and `realloc` using `mmap`/`munmap`.
 
 ## What this project does
-
-Reimplement 3 allocation functions using mmap and munmap:
-- malloc
-- realloc
-- free
+Reimplements the standard allocation functions:
+- `malloc`
+- `free`
+- `realloc`
 
 ## Build and test
 

@@ -53,7 +53,6 @@ fclean:
 re: fclean all
 
 test: re
-	export LD_LIBRARY_PATH=$(PWD)
 	$(CC) $(CFLAGS) main.c -L$(PWD) -Iincludes -lft_malloc -Llibft -lft -o test
 
 
