@@ -1,7 +1,16 @@
 #include "libft_malloc.h"
 #include <sys/mman.h>
 
+/**
+ * @brief Initializes a big chunk by mapping the necessary memory and
+ * initializing the members of the structure
+ * @param size The size asked for by the user
+ * @return The initialized big chunk
+ */
 t_big_chunk *init_big_chunk(size_t size) {
+
+    // Round to the closest multiple of 8
+    size = size - size % 8 + 8;
 
     // Map a region of the desired size + space for the header
     t_big_chunk *chunk =
@@ -18,6 +27,10 @@ t_big_chunk *init_big_chunk(size_t size) {
     return (chunk);
 }
 
+/**
+ * @brief Add a big_chunk to the big heap
+ * @param chunk The chunk to add to the list
+ */
 void add_big_chunk(t_big_chunk *chunk) {
     if (arena.big_heap == NULL) {
         arena.big_heap = chunk;
@@ -32,6 +45,10 @@ void add_big_chunk(t_big_chunk *chunk) {
     chunk->prev = current_chunk;
 }
 
+/**
+ * @brief Remove big chunk from the big heap
+ * @param The big chunk to remove
+ */
 void remove_big_chunk(t_big_chunk *chunk) {
     if (chunk->prev == NULL) {
         arena.big_heap = chunk->next;
