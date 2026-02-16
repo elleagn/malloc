@@ -2,32 +2,21 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+
 /**
- * @brief Find the segments containing the given chunk. If no segment is found,
- * NULL is returned.
- * @param chunk Pointer to the chunk of which we want to find the segment
- * @return The segment that the chunks belong to, or NULL if there is no such
- * segment
+ * @brief Remove big chunk from the big heap
+ * @param The big chunk to remove
  */
-t_segment *find_right_segment(t_chunk *chunk) {
-    t_segment *segment = arena.tiny_heap;
-    uintptr_t  chunk_address = (uintptr_t)chunk;
-    uintptr_t  segment_address;
-
-    if (chunk->user_size > MAX_TINY_SIZE) {
-        segment = arena.small_heap;
+void remove_big_chunk(t_big_chunk *chunk) {
+    if (chunk->prev == NULL) {
+        arena.big_heap = chunk->next;
+    } else {
+        chunk->prev->next = chunk->next;
     }
-
-    while (segment != NULL) {
-        segment_address = (uintptr_t)segment;
-        if (segment_address < chunk_address &&
-            chunk_address < segment_address + segment->size) {
-            return (segment);
-        }
-        segment = segment->next;
+    if (chunk->next != NULL) {
+        chunk->next->prev = chunk->prev;
     }
-
-    return (NULL);
+    munmap((void *)chunk, chunk->size);
 }
 
 /**

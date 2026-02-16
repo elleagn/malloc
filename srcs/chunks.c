@@ -1,68 +1,7 @@
 #include "libft_malloc.h"
 #include "stdint.h"
 
-/**
- * @brief Goes through the heap's bin until it finds a chunk with a usable space
- * >= size.
- * @param size the size fo the memory being requested
- * @param bin the bin to go through
- * @return first chunk big enough to contain the data
- *
- * @details The structure of a free chunk being as follow :
- *  chunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |             Size of previous chunk, if unallocated (P clear)  |
- *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      |             Size asked for by the user                        |
- *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      |             Size of chunk, in bytes                     |0|0|P|
- *  ptr-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |             Forward pointer to next chunk in list             |
- *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |             Back pointer to previous chunk in list            |
- *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |             Unused space (may be 0 bytes long)                .
- *	    .                                                               .
- *	    .                                                               |
- *  nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      |    Size of chunk, in bytes                                    |
- *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      |             Size asked for by the user                        |
- *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *	    |             Size of next chunk, in bytes                |0|0|0|
- *	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *
- * The minimum usable size is 24 because we must reserve space for the pointers
- * to the next and previous chunk if the chunk is freed + we overwrite the size
- * of chunk of the next byte.
- */
-t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
-    t_chunk *current_chunk = *bin;
-    if (size < 24) {
-        size = 24;
-    }
-    t_chunk *previous_chunk = NULL;
-
-    // Looking for a chunk that can contain size (usable_size = chunk->size
-    // - size of header + previous_size of next_chunk, ; must be >= size)
-    while (current_chunk != NULL) {
-        if (size + CHUNK_HEADER_SIZE - sizeof(void *) <= current_chunk->size) {
-            remove_chunk(current_chunk, bin);
-            return (current_chunk);
-        }
-        if (current_chunk->size % 8 == 0) {
-            previous_chunk = (t_chunk *)((uintptr_t)current_chunk -
-                                         current_chunk->prev_size +
-                                         current_chunk->prev_size % 8);
-            coalesce_chunk(current_chunk, bin);
-            current_chunk = previous_chunk;
-        } else {
-            current_chunk = current_chunk->next_free_chunk;
-        }
-    }
-
-    return (NULL);
-}
 
 /**
  * @brief Creates a properly formated empty chunk at the given address
@@ -121,38 +60,31 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 }
 
 /**
- * @brief Search for the first fitting chunk in the heap with a usable size
- * >= size, and resize it if necessary
- * @param size The size of thmalloce memory requested
- * @return A chunk of the minimal size required to contain data of size size
+ * @brief Find the segments containing the given chunk. If no segment is found,
+ * NULL is returned.
+ * @param chunk Pointer to the chunk of which we want to find the segment
+ * @return The segment that the chunks belong to, or NULL if there is no such
+ * segment
  */
-t_chunk *get_small_chunk(size_t size) {
+t_segment *find_right_segment(t_chunk *chunk) {
+    t_segment *segment = arena.tiny_heap;
+    uintptr_t  chunk_address = (uintptr_t)chunk;
+    uintptr_t  segment_address;
 
-    t_segment *heap;
-    size_t     max_size;
-    if (size <= MAX_TINY_SIZE) {
-        heap = arena.tiny_heap;
-        max_size = MAX_TINY_SIZE;
-    } else {
-        heap = arena.small_heap;
-        max_size = MAX_SMALL_SIZE;
+    if (chunk->user_size > MAX_TINY_SIZE) {
+        segment = arena.small_heap;
     }
 
-    t_chunk *chunk = find_fitting_chunk(size, &heap->bin);
-
-    // Search through all the existing bins and create a new one if no chunk
-    // fits
-    while (chunk == NULL) {
-        if (heap->next == NULL) {
-            heap->next = initialize_segment(max_size);
+    while (segment != NULL) {
+        segment_address = (uintptr_t)segment;
+        if (segment_address < chunk_address &&
+            chunk_address < segment_address + segment->size) {
+            return (segment);
         }
-        heap = heap->next;
-        chunk = find_fitting_chunk(size, &heap->bin);
+        segment = segment->next;
     }
 
-    chunk = split_chunk(chunk, size, &heap->bin);
-    chunk->user_size = size;
-    return (chunk);
+    return (NULL);
 }
 
 size_t get_chunk_size(t_chunk *chunk) {
