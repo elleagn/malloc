@@ -131,21 +131,8 @@ typedef struct s_arena {
 
 extern t_arena arena;
 
-
-t_chunk *get_small_chunk(size_t size);
-
-/**
- * @brief Add chunk to the bin.
- * @param chunk the chunk to be added
- * @param bin the bin (doubly linked list of chunks) to add the chunk to
- */
 void add_chunk(t_chunk *chunk, t_chunk **bin);
 
-/**
- * @brief Remove chunk from the bin.
- * @param chunk the chunk to be removed
- * @param bin the bin (doubly linked list of chunks) to remove the chunk from
- */
 void       remove_chunk(t_chunk *chunk, t_chunk **bin);
 t_chunk   *coalesce_chunk(t_chunk *chunk, t_chunk **bin);
 t_chunk   *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
@@ -153,11 +140,6 @@ t_segment *find_right_segment(t_chunk *chunk);
 size_t     get_chunk_size(t_chunk *chunk);
 int        is_in_use(t_chunk *chunk);
 void       remove_segment(t_segment *segment, t_segment **heap);
-
-t_big_chunk *init_big_chunk(size_t size);
-void         add_big_chunk(t_big_chunk *chunk);
-void         remove_big_chunk(t_big_chunk *chunk);
-
 
 t_segment *initialize_segment(size_t size);
 void      *malloc(size_t size);

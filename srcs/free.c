@@ -7,7 +7,7 @@
  * @brief Remove big chunk from the big heap
  * @param The big chunk to remove
  */
-void remove_big_chunk(t_big_chunk *chunk) {
+static void remove_big_chunk(t_big_chunk *chunk) {
     if (chunk->prev == NULL) {
         arena.big_heap = chunk->next;
     } else {
@@ -23,7 +23,7 @@ void remove_big_chunk(t_big_chunk *chunk) {
  * @brief Takes a used chunk as argument and makes it a valid free chunk
  * @param chunk The chunk to free
  */
-void make_chunk_free(t_chunk *chunk) {
+static void make_chunk_free(t_chunk *chunk) {
 
     if (!is_in_use(chunk)) {
         chunk = NULL;

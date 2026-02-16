@@ -9,7 +9,7 @@
  * @param size The size asked for by the user
  * @return The initialized big chunk
  */
-t_big_chunk *init_big_chunk(size_t size) {
+static t_big_chunk *init_big_chunk(size_t size) {
 
     // Round to the closest multiple of 8
     size = size - size % 8 + 8;
@@ -33,7 +33,7 @@ t_big_chunk *init_big_chunk(size_t size) {
  * @brief Add a big_chunk to the big heap
  * @param chunk The chunk to add to the list
  */
-void add_big_chunk(t_big_chunk *chunk) {
+static void add_big_chunk(t_big_chunk *chunk) {
     if (arena.big_heap == NULL) {
         arena.big_heap = chunk;
         return;
@@ -81,7 +81,7 @@ void add_big_chunk(t_big_chunk *chunk) {
  * to the next and previous chunk if the chunk is freed + we overwrite the size
  * of chunk of the next byte.
  */
-t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
+static t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
     t_chunk *current_chunk = *bin;
     if (size < 24) {
@@ -116,7 +116,7 @@ t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
  * @param size The size of thmalloce memory requested
  * @return A chunk of the minimal size required to contain data of size size
  */
-t_chunk *get_small_chunk(size_t size) {
+static t_chunk *get_small_chunk(size_t size) {
 
     t_segment *heap;
     size_t     max_size;

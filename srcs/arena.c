@@ -19,7 +19,7 @@ __attribute((constructor)) void init_arena() {
  * segment of the list
  * @param heap First segment of the list to clean
  */
-void clean_heap(t_segment *heap) {
+static void clean_heap(t_segment *heap) {
     t_segment *current_segment = heap;
     t_segment *next_segment = heap->next;
 
@@ -36,7 +36,7 @@ void clean_heap(t_segment *heap) {
  * memory segment of the list.
  * @param chunk First member of the list to clean
  */
-void clean_big_heap(t_big_chunk *chunk) {
+static void clean_big_heap(t_big_chunk *chunk) {
     t_big_chunk *next_chunk = chunk->next;
     while (next_chunk != NULL) {
         munmap(chunk, chunk->size);

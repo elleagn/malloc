@@ -23,7 +23,7 @@ int is_in_use(t_chunk *chunk) {
  * @param bin Double pointer to a chunk list from which to remove the right
  * chunk (that is assumed to be free)
  */
-void fuse_next_chunk(t_chunk *chunk, t_chunk **bin) {
+static void fuse_next_chunk(t_chunk *chunk, t_chunk **bin) {
     t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
     int      in_use = next_chunk->size % 8;
 
@@ -44,7 +44,7 @@ void fuse_next_chunk(t_chunk *chunk, t_chunk **bin) {
  * @param size The desired size of the new chunk
  */
 
-void try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
+static void try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
     t_chunk *current_chunk =
         (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
     while (current_chunk->user_size != 0 && !is_in_use(current_chunk) &&
@@ -54,7 +54,7 @@ void try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
     }
 }
 
-int belong_to_same_heap(size_t size1, size_t size2) {
+static int belong_to_same_heap(size_t size1, size_t size2) {
     if (size1 > MAX_SMALL_SIZE || size2 > MAX_SMALL_SIZE) {
         return (0);
     }
@@ -73,7 +73,7 @@ int belong_to_same_heap(size_t size1, size_t size2) {
  * @param size desired user size
  * @return chunk if the chunk can be realloced in place, NULL otherwise
  */
-t_chunk *try_in_place(t_chunk *chunk, size_t size) {
+static t_chunk *try_in_place(t_chunk *chunk, size_t size) {
     t_segment *heap = find_right_segment(chunk);
 
     try_expand_chunk(chunk, &heap->bin, size);
