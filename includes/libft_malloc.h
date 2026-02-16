@@ -152,17 +152,13 @@ t_chunk   *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin);
 t_segment *find_right_segment(t_chunk *chunk);
 size_t     get_chunk_size(t_chunk *chunk);
 int        is_in_use(t_chunk *chunk);
-void       cleanup_empty_segments(t_segment *heap);
 void       remove_segment(t_segment *segment, t_segment **heap);
 
 t_big_chunk *init_big_chunk(size_t size);
 void         add_big_chunk(t_big_chunk *chunk);
 void         remove_big_chunk(t_big_chunk *chunk);
 
-/**
- * @brief Request memory for the segment with mmap + fills the header
- * @return The segement, ready to be used
- */
+
 t_segment *initialize_segment(size_t size);
 void      *malloc(size_t size);
 void       free(void *ptr);
