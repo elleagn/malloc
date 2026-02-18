@@ -49,7 +49,7 @@ static void try_expand_chunk(t_chunk *chunk, t_chunk **bin, size_t size) {
     while (current_chunk->user_size != 0 && !is_in_use(current_chunk) &&
            size > chunk->size) {
         fuse_next_chunk(chunk, bin);
-        current_chunk = (t_chunk *)((uintptr_t)chunk + chunk->size);
+        current_chunk = (t_chunk *)((uintptr_t)chunk + get_chunk_size(chunk));
     }
 }
 

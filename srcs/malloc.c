@@ -131,7 +131,6 @@ static t_chunk *get_small_chunk(size_t size) {
     }
 
     t_chunk *chunk = find_fitting_chunk(size, &heap->bin);
-    sanity_check(chunk);
     // Search through all the existing bins and create a new one if no chunk
     // fits
     while (chunk == NULL) {
@@ -140,11 +139,9 @@ static t_chunk *get_small_chunk(size_t size) {
         }
         heap = heap->next;
         chunk = find_fitting_chunk(size, &heap->bin);
-        sanity_check(chunk);
     }
 
     chunk = split_chunk(chunk, size, &heap->bin);
-    sanity_check(chunk);
     return (chunk);
 }
 
@@ -162,7 +159,6 @@ void *malloc(size_t size) {
     }
     if (size <= MAX_SMALL_SIZE) {
         t_chunk *chunk = get_small_chunk(size);
-        sanity_check(chunk);
         ptr = (void *)((uintptr_t)chunk + CHUNK_HEADER_SIZE);
         t_segment *segment = find_right_segment(chunk);
         segment->occupied_bins += 1;

@@ -1,6 +1,5 @@
 #include "libft_malloc.h"
 #include "stdint.h"
-#include "libft.h"
 
 
 /**
@@ -16,13 +15,9 @@ t_chunk *coalesce_chunk(t_chunk *chunk, t_chunk **bin) {
     size_t prev_size = chunk->prev_size - flag;
     size_t size = chunk->size;
     t_chunk *prev_chunk = (t_chunk *)((uintptr_t)chunk - prev_size);
-    sanity_check(prev_chunk);
-    sanity_check(chunk);
     prev_chunk->size += size;
-    sanity_check(prev_chunk);
     size_t *next_prev_size = (size_t *)((uintptr_t)chunk + size);
     *next_prev_size = prev_chunk->size;
-    sanity_check((t_chunk * )next_prev_size);
 
     remove_chunk(chunk, bin);
     return (prev_chunk);
@@ -44,11 +39,8 @@ static void init_remainder_chunk(t_chunk *remainder_chunk, size_t size, t_chunk 
         next_chunk->prev_size = remainder_chunk->size;
         next_chunk->size = next_chunk->size - next_chunk->size % 8;
         add_chunk(remainder_chunk, bin);
-        sanity_check(remainder_chunk);
-        sanity_check(next_chunk);
     } else {
         next_chunk->size += 1;
-        sanity_check(next_chunk);
     }
 }
 
@@ -75,8 +67,6 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     size_t new_size = usable_size + CHUNK_HEADER_SIZE - sizeof(void *);
 
     t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + old_size);
-    sanity_check(next_chunk);
-    sanity_check(chunk);
     chunk->user_size = size;
     // Stop if remainder chunk would be smaller than the min free chunk size
     if (old_size - new_size < sizeof(t_chunk)) {
@@ -88,8 +78,6 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     t_chunk *remainder_chunk =
         (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
     init_remainder_chunk(remainder_chunk, old_size - new_size, bin);
-    sanity_check(chunk);
-    sanity_check(remainder_chunk);
     return (chunk);
 }
 

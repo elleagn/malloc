@@ -24,42 +24,21 @@ void test_malloc() {
     ft_printf("random malloc / free:\n");
     int seed = time(NULL);
     ft_printf("seed  = %i\n", seed);
-    srand(1771402434);
+    srand(seed);
     int *ptrs1[100];
-    // int r1s[] = {5, 949, 363, 177, 850, 528};
-    // int rs[] = {0, 0, 1, 2, 1, 4};
-    // int r2s[] = {0, 612, 992, 372, 90, 857};
     int r;
     for (int i = 0; i < 100; i++) {
-        int r1 = rand() % 1000 + 4;
-        ft_printf("i = %i malloc %i\n", i, r1);
+        int r1 = rand() % 2000 + 4;
         ptrs1[i] = malloc(r1);
         if (i != 0) {
             r = rand() % i;
-            ft_printf("free ptrs %i\n", r);
             free(ptrs1[r]);
-            int r2 = rand() % 1000 + 4;
-            ft_printf("ptrs %i malloc %i\n", r, r2);
+            int r2 = rand() % 2000 + 4;
             ptrs1[r] = malloc(r2);
         }
 
        *ptrs1[i] = i;
     }
-    // for (int i = 0; i < 6; i++) {
-    //     int r1 = r1s[i];
-    //     ft_printf("i = %i malloc %i\n", i, r1);
-    //     ptrs1[i] = malloc(r1);
-    //     if (i != 0) {
-    //         r = rs[i];
-    //         ft_printf("free ptrs %i\n", r);
-    //         free(ptrs1[r]);
-    //         int r2 = r2s[i];
-    //         ft_printf("ptrs %i malloc %i\n", r, r2);
-    //         ptrs1[r] = malloc(r2);
-    //     }
-
-    //    *ptrs1[i] = i;
-    // }
     show_alloc_mem();
     for (int i = 0; i < 100; i++) {
        free(ptrs1[i]);
@@ -125,13 +104,11 @@ void test_realloc_cross_bins(void) {
     assert(p != NULL);
     for (int i = 0; i < 50; i++)
         assert(p[i] == 'A');
-
     // Small → Large
-    p = realloc(p, 1000);  // big chunk
+    p = realloc(p, 10000);  // big chunk
     assert(p != NULL);
     for (int i = 0; i < 50; i++)
         assert(p[i] == 'A');
-
     free(p);
     ft_printf("✓ test_realloc_cross_bins passed\n");
 }
@@ -181,7 +158,7 @@ void test_realloc_no_coalesce_needed(void) {
     ft_memset(p, 'X', 100);
 
     p = realloc(p, 50);  // shrink
-    p = realloc(p, 80);  // grow but may fit in remainder
+    p = realloc(p, 80);  // growsrcs/show_alloc_mem.c but may fit in remainder
 
     for (int i = 0; i < 50; i++)
         assert(p[i] == 'X');
