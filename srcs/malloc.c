@@ -86,6 +86,8 @@ static t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
     t_chunk *current_chunk = *bin;
     if (size < 24) {
         size = 24;
+    } else if (size % 8 != 0) {
+        size = size - size % 8 + 8;
     }
     t_chunk *previous_chunk = NULL;
 

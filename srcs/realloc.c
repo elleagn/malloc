@@ -112,9 +112,13 @@ void *realloc(void *ptr, size_t size) {
 
     t_chunk *new_chunk = NULL;
     t_chunk *chunk = (t_chunk *)((uintptr_t)ptr - CHUNK_HEADER_SIZE);
-    
-    if (belong_to_same_heap(size, get_chunk_size(chunk))) {
-        new_chunk = try_in_place(chunk, size);
+    size_t min_size = size % 8 == 0 ? size : size - size % 8 + 8;
+    if (min_size < 24) {
+        min_size = 24;
+    }
+
+    if (belong_to_same_heap(min_size, get_chunk_size(chunk))) {
+        new_chunk = try_in_place(chunk, min_size);
     }
 
     void *result = NULL;

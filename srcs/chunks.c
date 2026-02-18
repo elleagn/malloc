@@ -41,10 +41,10 @@ static void init_remainder_chunk(t_chunk *remainder_chunk, size_t size, t_chunk 
         remainder_chunk->user_size = remainder_chunk->size - CHUNK_HEADER_SIZE + sizeof(size_t);
         remainder_chunk->next_free_chunk = NULL;
         remainder_chunk->prev_free_chunk = NULL;
-        sanity_check(remainder_chunk);
         next_chunk->prev_size = remainder_chunk->size;
         next_chunk->size = next_chunk->size - next_chunk->size % 8;
         add_chunk(remainder_chunk, bin);
+        sanity_check(remainder_chunk);
         sanity_check(next_chunk);
     } else {
         next_chunk->size += 1;
