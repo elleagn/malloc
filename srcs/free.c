@@ -26,8 +26,7 @@ static void remove_big_chunk(t_big_chunk *chunk) {
 static void make_chunk_free(t_chunk *chunk) {
 
     if (!is_in_use(chunk)) {
-        t_chunk *crash = NULL;
-        crash->size = 0;
+       return ;
     }
     chunk->next_free_chunk = NULL;
     chunk->prev_free_chunk = NULL;
@@ -53,7 +52,6 @@ void add_chunk_to_heap(t_chunk *chunk) {
     int        heap = chunk->user_size > MAX_TINY_SIZE;
     t_segment *segment = find_right_segment(chunk);
     if (segment == NULL) {
-        segment->occupied_bins = 0;
         return;
     }
 
