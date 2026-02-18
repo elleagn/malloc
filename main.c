@@ -22,44 +22,46 @@ void test_malloc() {
     ft_printf("✓ basic functionnality passed\n");
 
     ft_printf("random malloc / free:\n");
-    srand(time(NULL));
+    int seed = time(NULL);
+    ft_printf("seed  = %i\n", seed);
+    srand(1771402434);
     int *ptrs1[100];
-    int r1s[] = {159, 949, 363, 177, 850, 528};
-    int rs[] = {0, 0, 1, 2, 1, 4};
-    int r2s[] = {0, 612, 992, 372, 90, 857};
+    // int r1s[] = {5, 949, 363, 177, 850, 528};
+    // int rs[] = {0, 0, 1, 2, 1, 4};
+    // int r2s[] = {0, 612, 992, 372, 90, 857};
     int r;
-    // for (int i = 0; i < 10; i++) {
-    //     int r1 = rand() % 1000 + 4;
-    //     ft_printf("i = %i malloc %i\n", i, r1);
-    //     ptrs1[i] = malloc(r1);
-    //     if (i != 0) {
-    //         r = rand() % i;
-    //         ft_printf("free ptrs %i\n", r);
-    //         free(ptrs1[r]);
-    //         int r2 = rand() % 1000 + 4;
-    //         ft_printf("ptrs %i malloc %i\n", r, r2);
-    //         ptrs1[r] = malloc(r2);
-    //     }
-
-    //    *ptrs1[i] = i;
-    // }
-    for (int i = 0; i < 6; i++) {
-        int r1 = r1s[i];
+    for (int i = 0; i < 100; i++) {
+        int r1 = rand() % 1000 + 4;
         ft_printf("i = %i malloc %i\n", i, r1);
         ptrs1[i] = malloc(r1);
         if (i != 0) {
-            r = rs[i];
+            r = rand() % i;
             ft_printf("free ptrs %i\n", r);
             free(ptrs1[r]);
-            int r2 = r2s[i];
+            int r2 = rand() % 1000 + 4;
             ft_printf("ptrs %i malloc %i\n", r, r2);
             ptrs1[r] = malloc(r2);
         }
 
        *ptrs1[i] = i;
     }
+    // for (int i = 0; i < 6; i++) {
+    //     int r1 = r1s[i];
+    //     ft_printf("i = %i malloc %i\n", i, r1);
+    //     ptrs1[i] = malloc(r1);
+    //     if (i != 0) {
+    //         r = rs[i];
+    //         ft_printf("free ptrs %i\n", r);
+    //         free(ptrs1[r]);
+    //         int r2 = r2s[i];
+    //         ft_printf("ptrs %i malloc %i\n", r, r2);
+    //         ptrs1[r] = malloc(r2);
+    //     }
+
+    //    *ptrs1[i] = i;
+    // }
     show_alloc_mem();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
        free(ptrs1[i]);
     }
     show_alloc_mem();

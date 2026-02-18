@@ -77,6 +77,7 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + old_size);
     sanity_check(next_chunk);
     sanity_check(chunk);
+    chunk->user_size = size;
     // Stop if remainder chunk would be smaller than the min free chunk size
     if (old_size - new_size < sizeof(t_chunk)) {
         next_chunk->size += 1 - next_chunk->size % 8;
@@ -84,7 +85,6 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
     }
 
     chunk->size = new_size + flags;
-    chunk->user_size = size;
     t_chunk *remainder_chunk =
         (t_chunk *)((uintptr_t)chunk + chunk->size - flags);
     init_remainder_chunk(remainder_chunk, old_size - new_size, bin);
