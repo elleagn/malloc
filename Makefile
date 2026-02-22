@@ -25,11 +25,11 @@ $(LINK): $(NAME)
 	ln -sf $(NAME) $(LINK)
 
 $(NAME): $(OBJ) $(LIBFT)
-	@$(CC) $(OBJ) -shared -o $(NAME)
+	@$(CC) $(OBJ) -shared -Llibft -lft -o $(NAME)
 	@echo "$(NAME) a été créé avec succès ($(CHECK_MARK))"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	@$(CC) $(CFLAGS) -Ilibft -Iincludes -c $< -fPIC -o $@
+	@$(CC) $(CFLAGS) -Ilibft -Iincludes -c $<  -fPIC -o $@
 
 $(LIBFT):
 	@make -C libft --silent --no-print-directory
@@ -40,7 +40,6 @@ $(OBJ_DIR):
 
 clean:
 	@make clean -C libft --silent --no-print-directory
-	@make clean -C minilibx-linux --silent --no-print-directory
 	@rm -rf $(OBJ_DIR)
 	@echo "Nettoyage réussi ($(CHECK_MARK))"
 
