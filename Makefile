@@ -7,7 +7,7 @@ PWD=$(shell pwd)
 LINK= $(PWD)/libft_malloc.so
 NAME = libft_malloc_$(HOSTTYPE).so
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g -MMD -MP
+CFLAGS = -Wall -Wextra -Werror -g -MMD -MP -fPIC
 LIBFT = libft/libft.a
 SRC_DIR = srcs
 SRC_FILES = malloc.c heap.c bins.c chunks.c show_alloc_mem.c free.c \
@@ -29,7 +29,7 @@ $(NAME): $(OBJ) $(LIBFT)
 	@echo "$(NAME) a été créé avec succès ($(CHECK_MARK))"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	@$(CC) -fPIC $(CFLAGS) -Ilibft -Iincludes -c $< -o $@
+	@$(CC) $(CFLAGS) -Ilibft -Iincludes -c $< -o $@
 
 $(LIBFT):
 	@make -C libft --silent --no-print-directory
