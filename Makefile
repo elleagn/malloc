@@ -6,7 +6,7 @@ endif
 PWD=$(shell pwd)
 LINK= $(PWD)/libft_malloc.so
 NAME = libft_malloc_$(HOSTTYPE).so
-CC = clang
+CC = cc
 CFLAGS = -Wall -Wextra -Werror -g -MMD -MP
 LIBFT = libft/libft.a
 SRC_DIR = srcs
