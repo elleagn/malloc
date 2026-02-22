@@ -29,7 +29,7 @@ $(NAME): $(OBJ) $(LIBFT)
 	@echo "$(NAME) a été créé avec succès ($(CHECK_MARK))"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	@$(CC) $(CFLAGS) -Ilibft -Iincludes -c $<  -fPIC -o $@
+	@$(CC) -fPIC $(CFLAGS) -Ilibft -Iincludes -c $< -o $@
 
 $(LIBFT):
 	@make -C libft --silent --no-print-directory
