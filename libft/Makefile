@@ -26,7 +26,7 @@ OBJS = $(SRCS:.c=.o)
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fPIC
 
 all: $(NAME)
 
@@ -34,7 +34,7 @@ $(NAME): $(OBJS)
 	ar -rcs $(NAME) $?
 
 %.o: %.c
-	$(CC) -fPIC $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(OBJS) $(BONUS_OBJS)
