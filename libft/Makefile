@@ -34,7 +34,7 @@ $(NAME): $(OBJS)
 	ar -rcs $(NAME) $?
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ -fPIC $<
+	$(CC) -fPIC $(CFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(OBJS) $(BONUS_OBJS)
