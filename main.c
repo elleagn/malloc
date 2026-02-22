@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <time.h>
 
-#include "libft_malloc.h"
+#include "malloc.h"
 
 #include <stdint.h>
 #include <stdio.h>

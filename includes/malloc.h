@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#define ALIGNMENT 16
+
 #define PREV_INUSE     1
 #define MAX_TINY_SIZE  128
 #define MAX_SMALL_SIZE 1024

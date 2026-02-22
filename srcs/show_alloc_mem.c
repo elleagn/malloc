@@ -1,5 +1,5 @@
 #include "libft.h"
-#include "libft_malloc.h"
+#include "malloc.h"
 #include "stdint.h"
 
 void print_chunks(t_segment *heap, size_t *size) {
