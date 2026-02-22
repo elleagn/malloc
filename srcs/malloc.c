@@ -1,5 +1,5 @@
 #include "libft.h"
-#include "malloc.h"
+#include "../includes/malloc.h"
 #include <sys/mman.h>
 
 
@@ -84,10 +84,10 @@ static void add_big_chunk(t_big_chunk *chunk) {
 static t_chunk *find_fitting_chunk(size_t size, t_chunk **bin) {
 
     t_chunk *current_chunk = *bin;
-    if (size < 24) {
-        size = 24;
-    } else if (size % 8 != 0) {
-        size = size - size % 8 + 8;
+    if (size < 32) {
+        size = 32;
+    } else if (size % 16 != 0) {
+        size = size - size % 16 + 16;
     }
     t_chunk *previous_chunk = NULL;
 

@@ -58,13 +58,13 @@ t_chunk *split_chunk(t_chunk *chunk, size_t size, t_chunk **bin) {
 
     // Size is minimum 24 to be able to store the pointers to the previous +
     // next chunk in the bin when it is freed
-    size_t usable_size = size >= 24 ? size : 24;
-    if (usable_size % 8 != 0) {
-        usable_size = size - size % 8 + 8; // Smallest multiple of 8 >= size
+    size_t usable_size = size >= 32 ? size : 32;
+    if (usable_size % 16 != 0) {
+        usable_size = size - size % 16 + 16; // Smallest multiple of 8 >= size
     }
     size_t flags = chunk->size % 8;
     size_t old_size = chunk->size - flags;
-    size_t new_size = usable_size + CHUNK_HEADER_SIZE - sizeof(void *);
+    size_t new_size = usable_size + CHUNK_HEADER_SIZE;
 
     t_chunk *next_chunk = (t_chunk *)((uintptr_t)chunk + old_size);
     chunk->user_size = size;

@@ -10,7 +10,7 @@
 #define MAX_SMALL_SIZE 1024
 
 #define SEGMENT_HEADER_SIZE   32
-#define CHUNK_HEADER_SIZE     24
+#define CHUNK_HEADER_SIZE     32
 #define BIG_CHUNK_HEADER_SIZE 32
 
 /**
@@ -81,8 +81,8 @@
 
 typedef struct s_chunk {
     size_t          prev_size;
-    size_t          user_size;
     size_t          size;
+    size_t          user_size;
     struct s_chunk *next_free_chunk;
     struct s_chunk *prev_free_chunk;
 } t_chunk;
